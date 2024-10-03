@@ -41,6 +41,8 @@ quadbool = 0
 yes = False
 
 condRes = 'Else'
+debugMode = False
+debugList = ''
 
 Clock = pygame.time.Clock()
 while True:
@@ -54,6 +56,8 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 break
+            if event.key == pygame.K_o:
+                debugMode = not debugMode
     if quadbool <= 0:
         yes = False
     elif quadbool >= 3:
@@ -75,13 +79,12 @@ while True:
 
     if math.dist((bobp), (bobc)) > bob_effectspeed:
         bobc.xy = tran(bob.x, bob.y, bob_effectspeed / math.sqrt(2) * movement.x , bob_effectspeed / math.sqrt(2) * movement.y)
-    conditionResult = 'Else'
     
-    # Player center right of horizontal center, offsetx is min: take distance past center, add it to offsetx
+    # Player center right of horizontal center, offsetx is min: take distance past center, swap it to offsetx
     if bobc.x > sw / 2 - bob.width / 2 and offsetx == 0.0:
         offsetx += bobc.x - sw / 2 + bob.width
         bobc.x = sw / 2 - bob.width
-    # Player center left of horizontal center, offsetx is max: take distance past center, add it to offsetx
+    # Player center left of horizontal center, offsetx is max: take distance past center, swap to offsetx
     elif bobc.x < sw / 2 - bob.width / 2 and offsetx == gx:
         offsetx += bobc.x - sw / 2 + bob.width
         bobc.x = sw / 2 - bob.width
@@ -96,19 +99,15 @@ while True:
     if bobc.y > sh / 2 - bob.height / 2 and offsety == 0.0:
         offsety += bobc.y - sh / 2 + bob.height
         bobc.y = sh / 2 - bob.height
-        condRes = "If"
     elif bobc.y < sh / 2 - bob.height / 2 and offsety == gy:
         offsety += bobc.y - sh / 2 + bob.height
         bobc.y = sh / 2 - bob.height
-        condRes = "Elif1"
     elif offsety > gy:
         bobc.y += offsety-gy
-        offsetx = gy
-        condRes = "Elif2"
+        offsety = gy
     elif offsety < 0.0:
         bobc.y += offsety
         offsety = 0.0
-        condRes = "Elif3"
 
     if bobc.x < 0:
         bobc.x += -bobc.x
@@ -142,12 +141,15 @@ while True:
             quadbool -= 1
 
     window.fill('blue', bob)
-    if yes == True:
-        window.blit(text, ((sw/2-text.get_width()/2), 100))
-    coords = yay.render('{}'.format(bob_pos), True, 'white')
-    window.blit(coords, (0, sh - coords.get_height()))
-    coordsC = yay.render('{}'.format(bob_cpos), True, 'white')
-    window.blit(coordsC, (0 + coords.get_width(), sh - coordsC.get_height()))
+    if debugMode == True:
+        debugList = []
+        debugList.append(offsetx); debugList.append(offsety); debugList.append(pygame.Vector2((bob.x, bob.y)), bobc.xy, condRes)
+        debugOffsets = yay.render(debugList[0] + debugList[1], True, 'white')
+        window.blit(debugOffsets, (0, 0))
+        debugCoords = yay.render(debugList[2] + debugList[3], True, 'white')
+        window.blit(debugCoords, (0, 0))
+        debugCondRes = yay.render(debugList[4], True, 'white')
+        window.blit(debugCondRes, (0, 0))
     pygame.display.update()
 
     bobp.xy = bob
