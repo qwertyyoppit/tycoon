@@ -15,8 +15,8 @@ gyscale = 2
 gx = float(sw*gxscale)
 gy = float(sh*gyscale)
 
-offsetx = sw * gxscale / 2
-offsety = sh * gyscale / 2
+offsetx = gx / 2 - sw
+offsety = gy / 2 - sh
 
 def load_sprites(directory):
     sprites = []
@@ -96,13 +96,13 @@ while True:
         offsetx += bobc.x - sw / 2 + bob.width
         bobc.x = sw / 2 - bob.width
     # Player center left of horizontal center, offsetx is max: take distance past center, swap to offsetx
-    elif bobc.x < sw / 2 - bob.width / 2 and offsetx == gx:
+    elif bobc.x < sw / 2 - bob.width / 2 and offsetx == gx - sw:
         offsetx += bobc.x - sw / 2 + bob.width
         bobc.x = sw / 2 - bob.width
     # 
-    elif offsetx > gx:
-        bobc.x += offsetx-gx
-        offsetx = gx
+    elif offsetx > gx - sw:
+        bobc.x += offsetx - gx + sw
+        offsetx = gx - sw
     elif offsetx < 0.0:
         bobc.x += offsetx
         offsetx = 0.0
@@ -110,12 +110,12 @@ while True:
     if bobc.y > sh / 2 - bob.height / 2 and offsety == 0.0:
         offsety += bobc.y - sh / 2 + bob.height
         bobc.y = sh / 2 - bob.height
-    elif bobc.y < sh / 2 - bob.height / 2 and offsety == gy:
+    elif bobc.y < sh / 2 - bob.height / 2 and offsety == gy - sh:
         offsety += bobc.y - sh / 2 + bob.height
         bobc.y = sh / 2 - bob.height
-    elif offsety > gy:
-        bobc.y += offsety-gy
-        offsety = gy
+    elif offsety > gy - sh:
+        bobc.y += offsety - gy + sh
+        offsety = gy - sh
     elif offsety < 0.0:
         bobc.y += offsety
         offsety = 0.0
@@ -133,14 +133,14 @@ while True:
         bobc.y += sh - bobc.y - bob.height
         movement.y = movement.y * -1
 
-    if offsetx == 0.0 or offsetx == gx:
+    if offsetx == 0.0 or offsetx == gx - sw:
         bob.x = bobc.x
     else:
-        offsetx = bobc.x-bob.x+offsetx
-    if offsety == 0.0 or offsety == gy:
+        offsetx = bobc.x - bob.x + offsetx
+    if offsety == 0.0 or offsety == gy - sh:
         bob.y = bobc.y
     else:
-        offsety = bobc.y-bob.y+offsety
+        offsety = bobc.y - bob.y + offsety
 
     bob_pos = pygame.math.Vector2(bob.x + offsetx, bob.y + offsety)
     bob_cpos = pygame.math.Vector2(bobc.x + offsetx, bobc.y + offsety)
@@ -157,14 +157,17 @@ while True:
     if debugMode == True:
         debugList = []
         debugLineOffset = 0
-        debugList.append(offsetx); debugList.append(offsety); debugList.append(pygame.Vector2((bob.x, bob.y))); debugList.append(bobc.xy); debugList.append(condRes)
+        debugList.append(offsetx); debugList.append(offsety); debugList.append(pygame.Vector2((sw, sh))); debugList.append(pygame.Vector2((gx, gy))); debugList.append(pygame.Vector2((bob.x, bob.y))); debugList.append(bobc.xy); debugList.append(condRes)
         debugOffsets = yay.render("{}, {}".format(debugList[0], debugList[1]), True, 'white')
         window.blit(debugOffsets, (0, debugLineOffset))
         debugLineOffset += debugOffsets.get_height()
-        debugCoords = yay.render("{}, {}".format(debugList[2], debugList[3]), True, 'white')
+        debugLengths = yay.render("{}, {}".format(debugList[2], debugList[3]), True, 'white')
+        window.blit(debugLengths, (0, debugLineOffset))
+        debugLineOffset += debugLengths.get_height()
+        debugCoords = yay.render("{}, {}".format(debugList[4], debugList[5]), True, 'white')
         window.blit(debugCoords, (0, debugLineOffset))
         debugLineOffset += debugCoords.get_height()
-        debugCondRes = yay.render(debugList[4], True, 'white')
+        debugCondRes = yay.render(debugList[6], True, 'white')
         window.blit(debugCondRes, (0, debugLineOffset))
         debugLineOffset += debugCondRes.get_height()
     pygame.display.update()
