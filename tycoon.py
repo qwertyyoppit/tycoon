@@ -1,8 +1,7 @@
 import pygame
 import math
-#from sympy import solve, Poly, Eq, Matrix, Symbol
-#from sympy.abc import x, y, z, a, b
 from sys import exit
+import os
 
 pygame.init()
 
@@ -18,6 +17,18 @@ gy = float(sh*gyscale)
 
 offsetx = sw * gxscale / 2
 offsety = sh * gyscale / 2
+
+def load_sprites(directory):
+    sprites = []
+    for filename in os.listdir(directory):
+        if filename.endswith(".png") or filename.endswith(".jpg"):  # Adjust file extensions as needed
+            image = pygame.image.load(os.path.join(directory, filename)).convert_alpha()
+            sprites.append(image)
+    return sprites
+
+sprites = load_sprites("sprites")
+background = pygame.transform.scale(sprites[0], (gx, gy))
+path = pygame.transform.scale(sprites[11], (gx, gy))
 
 def toCenter(width, height, *args):
     return (width / 2 - args[0].width / 2, height / 2 - args[0].height / 2)
@@ -56,7 +67,7 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 break
-            if event.key == pygame.K_o:
+            if event.key == pygame.K_F3:
                 debugMode = not debugMode
     if quadbool <= 0:
         yes = False
@@ -140,16 +151,22 @@ while True:
         elif yes == True:
             quadbool -= 1
 
+    window.blit(background, (-offsetx, -offsety))
+    window.blit(path, (-offsetx, -offsety))
     window.fill('blue', bob)
     if debugMode == True:
         debugList = []
-        debugList.append(offsetx); debugList.append(offsety); debugList.append(pygame.Vector2((bob.x, bob.y)), bobc.xy, condRes)
-        debugOffsets = yay.render(debugList[0] + debugList[1], True, 'white')
-        window.blit(debugOffsets, (0, 0))
-        debugCoords = yay.render(debugList[2] + debugList[3], True, 'white')
-        window.blit(debugCoords, (0, 0))
+        debugLineOffset = 0
+        debugList.append(offsetx); debugList.append(offsety); debugList.append(pygame.Vector2((bob.x, bob.y))); debugList.append(bobc.xy); debugList.append(condRes)
+        debugOffsets = yay.render("{}, {}".format(debugList[0], debugList[1]), True, 'white')
+        window.blit(debugOffsets, (0, debugLineOffset))
+        debugLineOffset += debugOffsets.get_height()
+        debugCoords = yay.render("{}, {}".format(debugList[2], debugList[3]), True, 'white')
+        window.blit(debugCoords, (0, debugLineOffset))
+        debugLineOffset += debugCoords.get_height()
         debugCondRes = yay.render(debugList[4], True, 'white')
-        window.blit(debugCondRes, (0, 0))
+        window.blit(debugCondRes, (0, debugLineOffset))
+        debugLineOffset += debugCondRes.get_height()
     pygame.display.update()
 
     bobp.xy = bob
