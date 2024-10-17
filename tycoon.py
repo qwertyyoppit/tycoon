@@ -15,8 +15,8 @@ gyscale = 2
 gx = float(sw*gxscale)
 gy = float(sh*gyscale)
 
-offsetx = gx / 2 - sw
-offsety = gy / 2 - sh
+offsetx = gx / 2 - sw / 2
+offsety = gy / 2 - sh / 2
 
 def load_sprites(directory):
     sprites = []
@@ -58,7 +58,6 @@ debugList = ''
 Clock = pygame.time.Clock()
 while True:
     dt = Clock.tick(60)/1000.0
-    window.fill('black')
     text = yay.render(str(offsetx), True, 'white')
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
