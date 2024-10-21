@@ -76,7 +76,6 @@ debugList = ''
 Clock = pygame.time.Clock()
 while True:
     dt = Clock.tick(60)/1000.0
-    window.fill('black')
     text = yay.render(str(offsetx), True, 'white')
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
