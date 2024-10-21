@@ -15,8 +15,8 @@ gyscale = 2
 gx = float(sw*gxscale)
 gy = float(sh*gyscale)
 
-offsetx = gx / 2 - sw
-offsety = gy / 2 - sh
+offsetx = gx / 2 - sw / 2
+offsety = gy / 2 - sh / 2
 
 def load_sprites(directory):
     sprites = []
@@ -29,6 +29,24 @@ def load_sprites(directory):
 sprites = load_sprites("sprites")
 background = pygame.transform.scale(sprites[0], (gx, gy))
 path = pygame.transform.scale(sprites[11], (gx, gy))
+tiles = []
+trailsheet = pygame.image.load("sprites/testspritesheet", "testspritesheet.png")
+
+for i in range(trailsheet.get_width()/5):
+    tiles.append(trailsheet.subsurface((5 * i, 5, 5, 5)))
+trailsheet = pygame.transform.scale(trailsheet, (gx, gy))
+
+groundmap = [
+     9, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 8,
+     2, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 2,
+     6, 1, 7, 1, 1, 1, 1, 7, 1, 1, 1, 1, 7, 1, 1, 1, 1, 7, 1, 1, 1, 1, 7, 1, 5,
+     2, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 2,
+    11, 1, 4, 1, 1, 1, 1, 4, 1, 1, 1, 1, 4, 1, 1, 1, 1, 4, 1, 1, 1, 1, 4, 1,10
+]
+
+path = pygame.Surface((gx, gy))
+for i in range(len(groundmap)-1):
+    path.blit(tiles[i-1], ((gx / 25 * i - gx * math.floor((i) / 25), ) if (i + 1) % 25 == 0 else ()))
 
 def toCenter(width, height, *args):
     return (width / 2 - args[0].width / 2, height / 2 - args[0].height / 2)
