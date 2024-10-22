@@ -11,7 +11,7 @@ sh = 600
 window = pygame.display.set_mode((sw,sh), pygame.SCALED | pygame.RESIZABLE)
 
 gxscale = 6
-gyscale = 1
+gyscale = 2
 gx = float(sw*gxscale)
 gy = float(sh*gyscale)
 
@@ -118,11 +118,11 @@ while True:
         bobc.xy = tran(bob.x, bob.y, bob_effectspeed / math.sqrt(2) * movement.x , bob_effectspeed / math.sqrt(2) * movement.y)
     
     # Player center right of horizontal center, offsetx is min: take distance past center, swap it to offsetx
-    if bobc.x > sw / 2 - bob.width / 2 and offsetx == 0.0:
+    if bobc.x > sw / 2 - bob.width / 2 and (offsetx == 0.0 and offsetx != gx - sw):
         offsetx += bobc.x - sw / 2 + bob.width
         bobc.x = sw / 2 - bob.width
     # Player center left of horizontal center, offsetx is max: take distance past center, swap to offsetx
-    elif bobc.x < sw / 2 - bob.width / 2 and offsetx == gx - sw:
+    elif bobc.x < sw / 2 - bob.width / 2 and (offsetx != 0.0 and offsetx == gx - sw):
         offsetx += bobc.x - sw / 2 + bob.width
         bobc.x = sw / 2 - bob.width
     # 
@@ -132,11 +132,10 @@ while True:
     elif offsetx < 0.0:
         bobc.x += offsetx
         offsetx = 0.0
-
-    if bobc.y > sh / 2 - bob.height / 2 and offsety == 0.0:
+    if bobc.y > sh / 2 - bob.height / 2 and (offsety == 0.0 and offsety != gy - sh):
         offsety += bobc.y - sh / 2 + bob.height
         bobc.y = sh / 2 - bob.height
-    elif bobc.y < sh / 2 - bob.height / 2 and offsety == gy - sh:
+    elif bobc.y < sh / 2 - bob.height / 2 and (offsety != 0.0 and offsety == gy - sh):
         offsety += bobc.y - sh / 2 + bob.height
         bobc.y = sh / 2 - bob.height
     elif offsety > gy - sh:
@@ -152,7 +151,7 @@ while True:
         offsetx = bobc.x - bob.x + offsetx
     if offsety == 0.0 or offsety == gy - sh:
         bob.y = bobc.y
-    else: #what are these else statements for i must figure it out
+    else:
         offsety = bobc.y - bob.y + offsety
 
     if bob.x < 0:
