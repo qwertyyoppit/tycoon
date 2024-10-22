@@ -11,7 +11,7 @@ sh = 600
 window = pygame.display.set_mode((sw,sh), pygame.SCALED | pygame.RESIZABLE)
 
 gxscale = 6
-gyscale = 2
+gyscale = 1
 gx = float(sw*gxscale)
 gy = float(sh*gyscale)
 
@@ -32,9 +32,9 @@ path = pygame.transform.scale(sprites[11], (gx, gy))
 tiles = []
 trailsheet = pygame.image.load("sprites/testspritesheet.png", "testspritesheet.png")
 
+trailsheet = pygame.transform.scale(trailsheet, (gx, gy))
 for i in range(math.floor(trailsheet.get_width() / 5)):
     tiles.append(trailsheet.subsurface(5 * i, 0, 5, 5))
-trailsheet = pygame.transform.scale(trailsheet, (gx, gy))
 
 groundmap = [
      9, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 8,
@@ -146,27 +146,27 @@ while True:
         bobc.y += offsety
         offsety = 0.0
 
-    if bobc.x < 0:
-        bobc.x += -bobc.x
-        movement.x = movement.x * -1
-    if bobc.x + bob.width > sw:
-        bobc.x += sw - bobc.x - bob.width
-        movement.x = movement.x * -1
-    if bobc.y < 0:
-        bobc.y += -bobc.y
-        movement.y = movement.y * -1
-    if bobc.y + bob.height > sh:
-        bobc.y += sh - bobc.y - bob.height
-        movement.y = movement.y * -1
-
     if offsetx == 0.0 or offsetx == gx - sw:
         bob.x = bobc.x
     else:
         offsetx = bobc.x - bob.x + offsetx
     if offsety == 0.0 or offsety == gy - sh:
         bob.y = bobc.y
-    else:
+    else: #what are these else statements for i must figure it out
         offsety = bobc.y - bob.y + offsety
+
+    if bob.x < 0:
+        bob.x += -bob.x
+        movement.x = movement.x * -1
+    if bob.x + bob.width > sw:
+        bob.x += sw - bob.x - bob.width
+        movement.x = movement.x * -1
+    if bob.y < 0:
+        bob.y += -bob.y
+        movement.y = movement.y * -1
+    if bob.y + bob.height > sh:
+        bob.y += sh - bob.y - bob.height
+        movement.y = movement.y * -1
 
     bob_pos = pygame.math.Vector2(bob.x + offsetx, bob.y + offsety)
     bob_cpos = pygame.math.Vector2(bobc.x + offsetx, bobc.y + offsety)
