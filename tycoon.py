@@ -14,6 +14,7 @@ gxscale = 6
 gyscale = 2
 gx = float(sw*gxscale)
 gy = float(sh*gyscale)
+tilew = gx / 50
 
 offsetx = gx / 2 - sw / 2
 offsety = gy / 2 - sh / 2
@@ -32,9 +33,9 @@ path = pygame.transform.scale(sprites[11], (gx, gy))
 tiles = []
 trailsheet = pygame.image.load("sprites/testspritesheet.png", "testspritesheet.png")
 
-trailsheet = pygame.transform.scale(trailsheet, (gx, gy))
-for i in range(math.floor(trailsheet.get_width() / 5)):
-    tiles.append(trailsheet.subsurface(5 * i, 0, 5, 5))
+trailsheet = pygame.transform.scale(trailsheet, (trailsheet.get_width() / 5 * tilew, tilew))
+for i in range(math.floor(trailsheet.get_width() / tilew)):
+    tiles.append(trailsheet.subsurface(tilew * i, 0, tilew, tilew))
 
 groundmap = [
      9, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 8,
@@ -56,7 +57,7 @@ groundmap = [
 
 path = pygame.Surface((gx, gy))
 for i in range(len(groundmap)-1):
-    path.blit(tiles[groundmap[i]-1], ((gx / 50 * i - gx * math.floor(i / 50 - 1), (gy / 15) * math.floor(i / 50 - 1))))
+    path.blit(tiles[groundmap[i]-1], ((tilew * i - gx * math.floor(i / 50 - 1), (gy / 15) * math.floor(i / 50 - 1))))
 def toCenter(width, height, *args):
     return (width / 2 - args[0].width / 2, height / 2 - args[0].height / 2)
 
@@ -132,6 +133,7 @@ while True:
     elif offsetx < 0.0:
         bobc.x += offsetx
         offsetx = 0.0
+    # maybe an if here for these two
     if bobc.y > sh / 2 - bob.height / 2 and (offsety == 0.0 and offsety != gy - sh):
         offsety += bobc.y - sh / 2 + bob.height
         bobc.y = sh / 2 - bob.height
@@ -176,10 +178,12 @@ while True:
         elif yes == True:
             quadbool -= 1
 
-    window.blit(background, (-offsetx, -offsety))
-    
-    for i in range(len(tiles)-1):
-        window.blit(tiles[i], (tiles[i].get_width() * i, 0))
+    window.blit(background, (- offsetx, - offsety))
+    for i in range(len(groundmap)-1):
+        window.blit(tiles[groundmap[i]-1], (i * tilew, 0))
+        #window.blit(tiles[groundmap[i]-1], ((tilew * i - gx * math.floor(i / 50 - 1), (gy / 15) * math.floor(i / 50 - 1))))
+    #for i in range(len(tiles)-1):
+    #    window.blit(tiles[i], (tiles[i].get_width() * i - offsetx, - offsety))
     window.fill('blue', bob)
     if debugMode == True:
         debugList = []
