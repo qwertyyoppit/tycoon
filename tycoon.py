@@ -34,11 +34,12 @@ tiles = [pygame.Surface((tilew, tilew))]
 trailsheet = pygame.image.load("sprites/testspritesheet.png", "testspritesheet.png")
 objList = []
 barn = pygame.image.load("sprites/barn2.png", "barn2.png")
-barn = pygame.transform.scale(barn, (barn.get_width() * gxscale, barn.get_height() * gyscale))
-objList.append(barn)
-barnPos = pygame.Vector2(19 * gxscale, 15 * gyscale)
-barnRect = pygame.Rect((0, 0), barnPos)
-
+barn = pygame.transform.scale(barn, (barn.get_width() * gxscale, barn.get_height() * gxscale))
+barnRectSize = pygame.Vector2(19 * gxscale, 15 * gyscale)
+barnRect = pygame.Rect((0, 0), barnRectSize)
+objIndex = [
+    barn
+]
 
 trailsheet = pygame.transform.scale(trailsheet, (trailsheet.get_width() / 5 * tilew, tilew))
 for i in range(math.floor(trailsheet.get_width() / tilew)):
@@ -61,6 +62,11 @@ objectmap = [
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 ]
+
+for i in range(len(objectmap)):
+    if objectmap[i] != 0:
+        objList.append(pygame.Rect((i * tilew - gx * (math.floor(i / (50))), tilew * (math.floor(i / (50)) + 1)), barnRectSize))
+
 
 groundmap = [
      9, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 8,
@@ -110,6 +116,7 @@ yes = False
 condRes = 'Else'
 debugMode = False
 debugList = ''
+renderRects = False
 
 Clock = pygame.time.Clock()
 while True:
@@ -125,6 +132,8 @@ while True:
                 break
             if event.key == pygame.K_F3:
                 debugMode = not debugMode
+            if event.key == pygame.K_F4:
+                renderRects = not renderRects
             #if event.key == pygame.K_e and interact != None:
 
     if quadbool <= 0:
@@ -210,9 +219,12 @@ while True:
             quadbool -= 1
 
     window.blit(background, (- offsetx, - offsety))
-    barnRect.x, barnRect.y = gx / 2 - barnRect.width / 2, gy / 2 - barnRect.width
-    window.blit(barn, barnRect)
+    for i in objList:
+        window.blit(barn, (i.x - offsetx, i.y - offsety))
     
+    if renderRects == True:
+        for i in objList:
+            window.fill('red', i)
     window.fill('blue', bob)
     if debugMode == True:
         debugList = []
