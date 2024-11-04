@@ -6,6 +6,7 @@ import os
 pygame.init()
 class Structure(object):
     def __init__(self, sprite, rect):
+        self.id = id
         self.sprite = sprite
         self.rect = rect
 
@@ -33,22 +34,21 @@ def main():
         return sprites
 
     sprites = load_sprites("sprites")
-    background = pygame.transform.scale(sprites[0], (gx, gy))
-    path = pygame.transform.scale(sprites[11], (gx, gy))
+    ground = pygame.transform.scale(sprites[0], (gx, gy))
     tiles = [pygame.Surface((tilew, tilew))]
     trailsheet = pygame.image.load("sprites/testspritesheet.png", "testspritesheet.png")
-    objList = []
-    barn = pygame.image.load("sprites/barn2.png", "barn2.png")
-    barn = pygame.transform.scale(barn, (barn.get_width() * gxscale, barn.get_height() * gxscale))
-    barnRectSize = pygame.Vector2(19 * gxscale, 15 * gyscale)
-    barnRect = pygame.Rect((0, 0), barnRectSize)
-    objIndex = [
-        barn
-    ]
-
     trailsheet = pygame.transform.scale(trailsheet, (trailsheet.get_width() / 5 * tilew, tilew))
     for i in range(math.floor(trailsheet.get_width() / tilew)):
         tiles.append(trailsheet.subsurface(tilew * i, 0, tilew, tilew))
+
+    objList = []
+    sprList = []
+
+    barn = pygame.image.load("sprites/barn2.png", "barn2.png")
+    barn = pygame.transform.scale(barn, (barn.get_width() * gxscale, barn.get_height() * gxscale))
+    sprList.append(barn)
+    barnRectSize = pygame.Vector2(19 * gxscale, 15 * gyscale)
+    barnRect = pygame.Rect((0, 0), barnRectSize)
 
     objectmap = [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -70,7 +70,7 @@ def main():
 
     for i in range(len(objectmap)):
         if objectmap[i] != 0:
-            objList.append(pygame.Rect((i * tilew - gx * (math.floor(i / (50))), tilew * (math.floor(i / (50)) + 1)), barnRectSize))
+            objList.append(Structure(sprList[objectmap[i]-1], pygame.Rect((i * tilew - gx * (math.floor(i / (50))), tilew * (math.floor(i / (50)) + 1)), barnRectSize)))
 
 
     groundmap = [
@@ -95,7 +95,7 @@ def main():
     path.fill((0, 0, 0, 255))
     for i in range(len(groundmap)):
         if groundmap[i] != 0:
-            background.blit(tiles[groundmap[i]], (i * tilew - gx * (math.floor(i / (50))), tilew * (math.floor(i / (50)) + 1)))
+            ground.blit(tiles[groundmap[i]], (i * tilew - gx * (math.floor(i / (50))), tilew * (math.floor(i / (50)) + 1)))
 
     def toCenter(width, height, *args):
         return (width / 2 - args[0].width / 2, height / 2 - args[0].height / 2)
@@ -223,9 +223,9 @@ def main():
             elif yes == True:
                 quadbool -= 1
 
-        window.blit(background, (- offsetx, - offsety))
+        window.blit(ground, (- offsetx, - offsety))
         for i in objList:
-            window.blit(barn, (i.x - offsetx, i.y - offsety))
+            window.blit(i.sprite, (i.rect.x - offsetx, i.rect.y - offsety))
         
         if renderRects == True:
             for i in objList:
@@ -250,3 +250,5 @@ def main():
         pygame.display.update()
 
         bobp.xy = bob
+
+main()
