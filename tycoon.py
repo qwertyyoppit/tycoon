@@ -106,6 +106,12 @@ def main():
     def toCenter(width, height, *args):
         return (width / 2 - args[0].width / 2, height / 2 - args[0].height / 2)
 
+    game_time = 480.0
+    baseTimeRate = 0.5
+    dayLength = 1440.0
+    dayPeriods = ['midnight', 'morning', 'noon', 'evening']
+    time_of_day = dayPeriods[0]
+
     bob = pygame.Rect(300.0, 100.0, 50.0, 50.0)
     bob.x, bob.y = toCenter(sw, sh, bob)
     bob_basespeed = 4.0
@@ -115,7 +121,6 @@ def main():
     movement = pygame.math.Vector2(1, 1)
 
     yay = pygame.font.SysFont('calibri', 20, bold=True)
-    text = yay.render("HELP ME", True, 'white')
 
     def tran(x, y, addx, addy):
         translated = (x + addx, y + addy)
@@ -124,6 +129,7 @@ def main():
     quadbool = 0
     yes = False
 
+    # debug tools
     condRes = 'Else'
     debugMode = False
     debugList = ''
@@ -132,8 +138,18 @@ def main():
     Clock = pygame.time.Clock()
     while True:
         dt = Clock.tick(60)/1000.0
+        game_time += dt * baseTimeRate
+        if game_time > dayLength:
+            game_time = game_time - dayLength
+        if game_time >= dayLength/4 * 3:
+            time_of_day = dayPeriods[3]
+        elif game_time >= dayLength/4 * 2:
+            time_of_day = dayPeriods[2]
+        elif game_time >= dayLength/4:
+            time_of_day = dayPeriods[1]
+        else:
+            time_of_day = dayPeriods[0] 
         window.fill('black')
-        text = yay.render(str(offsetx), True, 'white')
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
