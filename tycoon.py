@@ -105,6 +105,9 @@ def main():
 
     def toCenter(width, height, *args):
         return (width / 2 - args[0].width / 2, height / 2 - args[0].height / 2)
+    
+    game_time = 480.0
+    baseTimeSpeed = 1.0
 
     game_time = 480.0
     baseTimeRate = 0.5
