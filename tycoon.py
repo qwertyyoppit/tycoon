@@ -13,9 +13,14 @@ class Structure(object):
 class Crop(Structure):
     def __init__(self, sprite, rect, type, growthrate):
         super().__init__(sprite, rect)
-        self.type = type
+        self.croptype = type
         self.baseGrowthRate = growthrate
-        self.growthprogress
+        self.growthProgress = 0.0
+        self.growthStage = 0
+        self.harvestable = False
+    
+    def update(self):
+        self.growthprogress = self.baseGrowthRate * dt
 
 def main():
     sw = 600
@@ -32,15 +37,37 @@ def main():
     offsetx = gx / 2 - sw / 2
     offsety = gy / 2 - sh / 2
 
-    def load_sprites(directory):
+    def load_sprites(directory, *args):
         sprites = []
+        filenames = []
         for filename in os.listdir(directory):
+            filenames.append(str(filename))
             if filename.endswith(".png") or filename.endswith(".jpg"):  # Adjust file extensions as needed
                 image = pygame.image.load(os.path.join(directory, filename)).convert_alpha()
                 sprites.append(image)
-        return sprites
+        return filenames if args[0] == 'filenames' else sprites
 
-    sprites = load_sprites("sprites")
+    sprites = load_sprites("sprites", "sprites")
+    cropSprites = load_sprites("sprites/newsprites/crops", "filenames")
+    carrotSprite = []
+    cornSprite = []
+    potatoSprite = []
+    tomatoSprite = []
+    watermelonSprite = []
+    wheatSprite = []
+    for i in range(len(cropSprites)):
+        if cropSprites[i][:-i] == 'carrot':
+            carrotSprite.append(i)
+        elif cropSprites[i][:-i] == 'corn':
+            cornSprite.append(i)
+        elif cropSprites[i][:-i] == 'potato':
+            potatoSprite.append(i)
+        elif cropSprites[i][:-i] == 'tomato':
+            tomatoSprite.append(i)
+        elif cropSprites[i][:-i] == 'watermelon':
+            watermelonSprite.append(i)
+        elif cropSprites[i][:-i] == 'wheat':
+            wheatSprite.append(i)
     ground = pygame.transform.scale(sprites[0], (gx, gy))
     tiles = [pygame.Surface((tilew, tilew))]
     trailsheet = pygame.image.load("sprites/testspritesheet.png", "testspritesheet.png")
@@ -110,7 +137,7 @@ def main():
     baseTimeSpeed = 1.0
 
     game_time = 480.0
-    baseTimeRate = 0.5
+    baseTimeRate = 2
     dayLength = 1440.0
     dayPeriods = ['midnight', 'morning', 'noon', 'evening']
     time_of_day = dayPeriods[0]
@@ -251,7 +278,10 @@ def main():
         window.blit(ground, (- offsetx, - offsety))
         for i in objList:
             window.blit(i.sprite, (i.rect.x - offsetx, i.rect.y - offsety))
-        
+        time_hour = math.floor(math.floor(game_time) / 60)
+        time_minute = math.floor(game_time) - 60 * time_hour
+        time_text = yay.render(str(time_hour) + ':' + ('0' + str(time_minute) if len(str(time_minute)) == 1 else str(time_minute)) + ' (' + time_of_day + ')', True, 'white')
+        window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
         if renderRects == True:
             for i in objList:
                 window.fill('red', i)
