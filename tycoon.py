@@ -11,16 +11,37 @@ class Structure(object):
         self.rect = rect
 
 class Crop(Structure):
-    def __init__(self, sprite, rect, type, growthrate):
+    def __init__(self, sprite, rect, stageSprites, type, growthrate):
         super().__init__(sprite, rect)
+        self.stageSprites = stageSprites
         self.croptype = type
         self.baseGrowthRate = growthrate
         self.growthProgress = 0.0
         self.growthStage = 0
         self.harvestable = False
+        self.planted = False
     
     def update(self):
-        self.growthprogress = self.baseGrowthRate * dt
+        if self.planted == True:
+            self.growthProgress += self.baseGrowthRate * dt
+        if self.growthProgress >= 1.0:
+            self.harvestable == True
+            self.growthProgress = 1.0
+        else:
+            self.harvestable == False
+
+        # sprite 0, 1, or 2 based on stage. if plantable == false, render no sprite
+        if self.growthProgress >= 1.0:
+            self.growthStage = 2
+        elif self.growthProgress > 1.0:
+            self.growthStage = 1
+        elif self.growthProgress > 0.5:
+            self.growthStage = 0
+        
+
+    def harvest(self):
+        self.growthProgress = 0.0
+        self.planted = False
 
 def main():
     sw = 600
