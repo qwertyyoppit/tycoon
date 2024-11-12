@@ -14,7 +14,7 @@ class Crop(Structure):
     def __init__(self, sprite, rect, stageSprites, type, growthrate):
         super().__init__(sprite, rect)
         self.stageSprites = stageSprites
-        self.croptype = type
+        self.cropType = type
         self.baseGrowthRate = growthrate
         self.growthProgress = 0.0
         self.growthStage = 0
@@ -37,6 +37,14 @@ class Crop(Structure):
             self.growthStage = 1
         elif self.growthProgress > 0.5:
             self.growthStage = 0
+
+        if self.growthStage == 0:
+            self.sprite = self.stageSprites[0]
+        elif self.growthStage == 1:
+            self.sprite = self.stageSprites[1]
+        elif self.growthStage == 2:
+            self.sprite = self.stageSprites[2]
+        
         
 
     def harvest(self):
@@ -69,26 +77,34 @@ def main():
         return filenames if args[0] == 'filenames' else sprites
 
     sprites = load_sprites("sprites", "sprites")
-    cropSprites = load_sprites("sprites/newsprites/crops", "filenames")
+    cropSprites = load_sprites("sprites/newsprites/crops", "sprites")
+    cropSpriteNames = load_sprites("sprites/newsprites/crops", "filenames")
     carrotSprite = []
     cornSprite = []
     potatoSprite = []
     tomatoSprite = []
     watermelonSprite = []
     wheatSprite = []
-    for i in range(len(cropSprites)):
-        if cropSprites[i][:-i] == 'carrot':
-            carrotSprite.append(i)
-        elif cropSprites[i][:-i] == 'corn':
-            cornSprite.append(i)
-        elif cropSprites[i][:-i] == 'potato':
-            potatoSprite.append(i)
-        elif cropSprites[i][:-i] == 'tomato':
-            tomatoSprite.append(i)
-        elif cropSprites[i][:-i] == 'watermelon':
-            watermelonSprite.append(i)
-        elif cropSprites[i][:-i] == 'wheat':
-            wheatSprite.append(i)
+    for i in range(len(cropSpriteNames)):
+        if 'carrot' in cropSpriteNames[i]:
+            carrotSprite.append(cropSprites[i])
+        elif 'corn' in cropSpriteNames[i]:
+            cornSprite.append(cropSprites[i])
+        elif 'potato' in cropSpriteNames[i]:
+            potatoSprite.append(cropSprites[i])
+        elif 'tomato' in cropSpriteNames[i]:
+            tomatoSprite.append(cropSprites[i])
+        elif 'watermelon' in cropSpriteNames[i]:
+            watermelonSprite.append(cropSprites[i])
+        elif 'wheat' in cropSpriteNames[i]:
+            wheatSprite.append(cropSprites[i])
+    carrotRect = pygame.Rect(0, 0, carrotSprite[0].get_width() * gxscale, carrotSprite[0].get_height() * gxscale)
+    cornRect = pygame.Rect(0, 0, cornSprite[0].get_width() * gxscale, cornSprite[0].get_height() * gxscale)
+    potatoRect = pygame.Rect(0, 0, potatoSprite[0].get_width() * gxscale, potatoSprite[0].get_height() * gxscale)
+    tomatoRect = pygame.Rect(0, 0, tomatoSprite[0].get_width() * gxscale, tomatoSprite[0].get_height() * gxscale)
+    watermelonRect = pygame.Rect(0, 0, watermelonSprite[0].get_width() * gxscale, watermelonSprite[0].get_height() * gxscale)
+    wheatRect = pygame.Rect(0, 0, wheatSprite[0].get_width() * gxscale, wheatSprite[0].get_height() * gxscale)
+
     ground = pygame.transform.scale(sprites[0], (gx, gy))
     tiles = [pygame.Surface((tilew, tilew))]
     trailsheet = pygame.image.load("sprites/testspritesheet.png", "testspritesheet.png")
@@ -97,13 +113,18 @@ def main():
         tiles.append(trailsheet.subsurface(tilew * i, 0, tilew, tilew))
 
     objList = []
-    sprList = []
+    typeIdList = []
 
-    barn = pygame.image.load("sprites/barn2.png", "barn2.png")
-    barn = pygame.transform.scale(barn, (barn.get_width() * gxscale, barn.get_height() * gxscale))
-    sprList.append(barn)
     barnRectSize = pygame.Vector2(19 * gxscale, 15 * gyscale)
-    barnRect = pygame.Rect((0, 0), barnRectSize)
+    barnRect = pygame.Rect(0, 0, 19 * gxscale, 15 * gyscale)
+    barnSprite = pygame.image.load("sprites/barn2.png", "barn2.png")
+    barn = Structure(pygame.transform.scale(barnSprite, (barnSprite.get_width() * gxscale, barnSprite.get_height() * gxscale)), barnRect)
+    typeIdList.append(barn)
+
+    wheatCrop = Crop(wheatSprite[0], wheatRect, wheatSprite, 'wheat', .05)
+    typeIdList.append(wheatCrop)
+
+
 
     objectmap = [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -113,11 +134,11 @@ def main():
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -125,7 +146,12 @@ def main():
 
     for i in range(len(objectmap)):
         if objectmap[i] != 0:
-            objList.append(Structure(sprList[objectmap[i]-1], pygame.Rect((i * tilew - gx * (math.floor(i / (50))), tilew * (math.floor(i / (50)) + 1)), barnRectSize)))
+            index = typeIdList[objectmap[i]-1]
+            tempStructure = Structure(index.sprite, pygame.Rect((i * tilew - gx * (math.floor(i / (50))), tilew * (math.floor(i / (50)) + 1)), (index.rect.width, index.rect.height)))
+            if type(index) == Crop:
+                objList.append(Crop(tempStructure.sprite, tempStructure.rect, index.stageSprites, index.cropType, index.baseGrowthRate))
+            else:
+                objList.append(tempStructure)
 
     groundmap = [
         9, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 3, 1, 8,
@@ -299,18 +325,16 @@ def main():
         window.blit(ground, (- offsetx, - offsety))
         for i in objList:
             window.blit(i.sprite, (i.rect.x - offsetx, i.rect.y - offsety))
+            if renderRects == True:
+                pygame.draw.rect(window, 'white', i.rect)
         time_hour = math.floor(math.floor(game_time) / 60)
         time_minute = math.floor(game_time) - 60 * time_hour
         time_text = yay.render(str(time_hour) + ':' + ('0' + str(time_minute) if len(str(time_minute)) == 1 else str(time_minute)) + ' (' + time_of_day + ')', True, 'white')
         window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
-        if renderRects == True:
-            for i in objList:
-                window.fill('red', i)
         window.fill('blue', bob)
         if debugMode == True:
-            debugList = []
+            debugList = [offsetx, offsety, pygame.Vector2((sw, sh)), pygame.Vector2((gx, gy)), pygame.Vector2((bob.x, bob.y)), bobc.xy, condRes]
             debugLineOffset = 0
-            debugList.append(offsetx); debugList.append(offsety); debugList.append(pygame.Vector2((sw, sh))); debugList.append(pygame.Vector2((gx, gy))); debugList.append(pygame.Vector2((bob.x, bob.y))); debugList.append(bobc.xy); debugList.append(condRes)
             debugOffsets = yay.render("{}, {}".format(debugList[0], debugList[1]), True, 'white')
             window.blit(debugOffsets, (0, debugLineOffset))
             debugLineOffset += debugOffsets.get_height()
@@ -320,7 +344,7 @@ def main():
             debugCoords = yay.render("{}, {}".format(debugList[4], debugList[5]), True, 'white')
             window.blit(debugCoords, (0, debugLineOffset))
             debugLineOffset += debugCoords.get_height()
-            debugCondRes = yay.render(debugList[6], True, 'white')
+            debugCondRes = yay.render(str(debugList[6]), True, 'white')
             window.blit(debugCondRes, (0, debugLineOffset))
             debugLineOffset += debugCondRes.get_height()
         pygame.display.update()
