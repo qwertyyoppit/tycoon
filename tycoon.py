@@ -21,9 +21,9 @@ class Crop(Structure):
         self.harvestable = False
         self.planted = True
     
-    def update(self):
+    def update(self, dt):
         if self.planted == True:
-            self.growthProgress += self.baseGrowthRate
+            self.growthProgress += self.baseGrowthRate * dt
         if self.growthProgress >= 1.0:
             self.harvestable == True
             self.growthProgress = 0.0
@@ -41,13 +41,10 @@ class Crop(Structure):
 
         if self.growthStage == 0:
             self.sprite = self.stageSprites[0]
-            print('{} {}'.format(self.growthProgress, self.baseGrowthRate))
         elif self.growthStage == 1:
             self.sprite = self.stageSprites[1]
-            print('sprite 2')
         elif self.growthStage == 2:
             self.sprite = self.stageSprites[2]
-            print('sprite 3')
 
     def harvest(self):
         self.growthProgress = 0.0
@@ -204,6 +201,7 @@ def main():
 
     quadbool = 0
     yes = False
+    interact = None
 
     # debug tools
     condRes = 'Else'
@@ -312,8 +310,10 @@ def main():
             bob.y += sh - bob.y - bob.height
             movement.y = movement.y * -1
 
-        bob_pos = pygame.math.Vector2(bob.x + offsetx, bob.y + offsety)
-        bob_cpos = pygame.math.Vector2(bobc.x + offsetx, bobc.y + offsety)
+        for i in objList:
+            if bob.contains(i.rect):
+                interact = objList.index(i)
+
 
         if keys[pygame.K_SPACE]:
             if yes == False:
@@ -323,7 +323,7 @@ def main():
 
         for i in objList:
             if type(i) == Crop:
-                i.update()
+                i.update(dt)
 
         window.blit(ground, (- offsetx, - offsety))
         for i in objList:
