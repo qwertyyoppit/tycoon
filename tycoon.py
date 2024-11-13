@@ -19,33 +19,35 @@ class Crop(Structure):
         self.growthProgress = 0.0
         self.growthStage = 0
         self.harvestable = False
-        self.planted = False
+        self.planted = True
     
     def update(self):
         if self.planted == True:
-            self.growthProgress += self.baseGrowthRate * dt
+            self.growthProgress += self.baseGrowthRate
         if self.growthProgress >= 1.0:
             self.harvestable == True
-            self.growthProgress = 1.0
+            self.growthProgress = 0.0
         else:
             self.harvestable == False
 
         # sprite 0, 1, or 2 based on stage. if plantable == false, render no sprite
         if self.growthProgress >= 1.0:
             self.growthStage = 2
-        elif self.growthProgress > 1.0:
+            self.harvest()
+        elif self.growthProgress >= 0.5:
             self.growthStage = 1
-        elif self.growthProgress > 0.5:
+        elif self.growthProgress < 0.5:
             self.growthStage = 0
 
         if self.growthStage == 0:
             self.sprite = self.stageSprites[0]
+            print('{} {}'.format(self.growthProgress, self.baseGrowthRate))
         elif self.growthStage == 1:
             self.sprite = self.stageSprites[1]
+            print('sprite 2')
         elif self.growthStage == 2:
             self.sprite = self.stageSprites[2]
-        
-        
+            print('sprite 3')
 
     def harvest(self):
         self.growthProgress = 0.0
@@ -73,7 +75,7 @@ def main():
             filenames.append(str(filename))
             if filename.endswith(".png") or filename.endswith(".jpg"):  # Adjust file extensions as needed
                 image = pygame.image.load(os.path.join(directory, filename)).convert_alpha()
-                sprites.append(image)
+                sprites.append(pygame.transform.scale(image, (image.get_width() * gxscale, image.get_height() * gxscale)))
         return filenames if args[0] == 'filenames' else sprites
 
     sprites = load_sprites("sprites", "sprites")
@@ -98,12 +100,12 @@ def main():
             watermelonSprite.append(cropSprites[i])
         elif 'wheat' in cropSpriteNames[i]:
             wheatSprite.append(cropSprites[i])
-    carrotRect = pygame.Rect(0, 0, carrotSprite[0].get_width() * gxscale, carrotSprite[0].get_height() * gxscale)
-    cornRect = pygame.Rect(0, 0, cornSprite[0].get_width() * gxscale, cornSprite[0].get_height() * gxscale)
-    potatoRect = pygame.Rect(0, 0, potatoSprite[0].get_width() * gxscale, potatoSprite[0].get_height() * gxscale)
-    tomatoRect = pygame.Rect(0, 0, tomatoSprite[0].get_width() * gxscale, tomatoSprite[0].get_height() * gxscale)
-    watermelonRect = pygame.Rect(0, 0, watermelonSprite[0].get_width() * gxscale, watermelonSprite[0].get_height() * gxscale)
-    wheatRect = pygame.Rect(0, 0, wheatSprite[0].get_width() * gxscale, wheatSprite[0].get_height() * gxscale)
+    carrotRect = pygame.Rect(0, 0, carrotSprite[0].get_width() * gxscale, carrotSprite[0].get_height() * gyscale)
+    cornRect = pygame.Rect(0, 0, cornSprite[0].get_width() * gxscale, cornSprite[0].get_height() * gyscale)
+    potatoRect = pygame.Rect(0, 0, potatoSprite[0].get_width() * gxscale, potatoSprite[0].get_height() * gyscale)
+    tomatoRect = pygame.Rect(0, 0, tomatoSprite[0].get_width() * gxscale, tomatoSprite[0].get_height() * gyscale)
+    watermelonRect = pygame.Rect(0, 0, watermelonSprite[0].get_width() * gxscale, watermelonSprite[0].get_height() * gyscale)
+    wheatRect = pygame.Rect(0, 0, wheatSprite[0].get_width() * gxscale, wheatSprite[0].get_height() * gyscale)
 
     ground = pygame.transform.scale(sprites[0], (gx, gy))
     tiles = [pygame.Surface((tilew, tilew))]
@@ -115,16 +117,13 @@ def main():
     objList = []
     typeIdList = []
 
-    barnRectSize = pygame.Vector2(19 * gxscale, 15 * gyscale)
     barnRect = pygame.Rect(0, 0, 19 * gxscale, 15 * gyscale)
     barnSprite = pygame.image.load("sprites/barn2.png", "barn2.png")
     barn = Structure(pygame.transform.scale(barnSprite, (barnSprite.get_width() * gxscale, barnSprite.get_height() * gxscale)), barnRect)
     typeIdList.append(barn)
 
-    wheatCrop = Crop(wheatSprite[0], wheatRect, wheatSprite, 'wheat', .05)
+    wheatCrop = Crop(wheatSprite[0], wheatRect, wheatSprite, 'wheat', 0.05)
     typeIdList.append(wheatCrop)
-
-
 
     objectmap = [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -322,6 +321,10 @@ def main():
             elif yes == True:
                 quadbool -= 1
 
+        for i in objList:
+            if type(i) == Crop:
+                i.update()
+
         window.blit(ground, (- offsetx, - offsety))
         for i in objList:
             window.blit(i.sprite, (i.rect.x - offsetx, i.rect.y - offsety))
@@ -347,6 +350,7 @@ def main():
             debugCondRes = yay.render(str(debugList[6]), True, 'white')
             window.blit(debugCondRes, (0, debugLineOffset))
             debugLineOffset += debugCondRes.get_height()
+        
         pygame.display.update()
 
         bobp.xy = bob
