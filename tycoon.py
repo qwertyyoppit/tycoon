@@ -14,6 +14,7 @@ class Crop(Structure):
     def __init__(self, sprite, rect, stageSprites, type, growthrate):
         super().__init__(sprite, rect)
         self.stageSprites = stageSprites
+        self.stageSprites.append(pygame.Surface((self.sprite.get_width(), self.sprite.get_height())).convert_alpha())
         self.cropType = type
         self.baseGrowthRate = growthrate
         self.growthProgress = 0.0
@@ -24,16 +25,16 @@ class Crop(Structure):
     def update(self, dt):
         if self.planted == True:
             self.growthProgress += self.baseGrowthRate * dt
+        else:
+            self.sprite = self.stageSprites[3]
         if self.growthProgress >= 1.0:
             self.harvestable == True
-            self.growthProgress = 0.0
         else:
             self.harvestable == False
 
         # sprite 0, 1, or 2 based on stage. if plantable == false, render no sprite
         if self.growthProgress >= 1.0:
             self.growthStage = 2
-            self.harvest()
         elif self.growthProgress >= 0.5:
             self.growthStage = 1
         elif self.growthProgress < 0.5:
@@ -46,9 +47,12 @@ class Crop(Structure):
         elif self.growthStage == 2:
             self.sprite = self.stageSprites[2]
 
-    def harvest(self):
-        self.growthProgress = 0.0
-        self.planted = False
+    def interact(self):
+        if self.harvestable == True:
+            self.growthProgress = 0.0
+            self.planted = False
+        elif self.planted == False:
+            self.planted == True
 
 def main():
     sw = 600
@@ -64,6 +68,7 @@ def main():
 
     offsetx = gx / 2 - sw / 2
     offsety = gy / 2 - sh / 2
+    offsetc = pygame.Vector2(0, 0)
 
     def load_sprites(directory, *args):
         sprites = []
@@ -119,7 +124,7 @@ def main():
     barn = Structure(pygame.transform.scale(barnSprite, (barnSprite.get_width() * gxscale, barnSprite.get_height() * gxscale)), barnRect)
     typeIdList.append(barn)
 
-    wheatCrop = Crop(wheatSprite[0], wheatRect, wheatSprite, 'wheat', 0.05)
+    wheatCrop = Crop(wheatSprite[0], wheatRect, wheatSprite, 'wheat', 0.5)
     typeIdList.append(wheatCrop)
 
     objectmap = [
@@ -235,7 +240,16 @@ def main():
                     debugMode = not debugMode
                 if event.key == pygame.K_F4:
                     renderRects = not renderRects
-                #if event.key == pygame.K_e and interact != None:
+                if event.key == pygame.K_e:
+                    interacting = bob.collideobjects(objList)
+                    if type(interacting) == Crop:
+                        interacting.interact()
+                if event.key == pygame.K_x:
+                    tempRects = []
+                    for i in objList:
+                        tempRects.append(i.rect)
+                    print(bob.collideobjects(tempRects))
+
 
         if quadbool <= 0:
             yes = False
@@ -329,7 +343,7 @@ def main():
         for i in objList:
             window.blit(i.sprite, (i.rect.x - offsetx, i.rect.y - offsety))
             if renderRects == True:
-                pygame.draw.rect(window, 'white', i.rect)
+                pygame.draw.rect(window, 'white', pygame.Surface.get_rect(i.sprite)) if type(i) == Structure else False
         time_hour = math.floor(math.floor(game_time) / 60)
         time_minute = math.floor(game_time) - 60 * time_hour
         time_text = yay.render(str(time_hour) + ':' + ('0' + str(time_minute) if len(str(time_minute)) == 1 else str(time_minute)) + ' (' + time_of_day + ')', True, 'white')
