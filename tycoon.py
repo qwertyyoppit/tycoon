@@ -66,9 +66,8 @@ def main():
     gy = float(sh*gyscale)
     tilew = gx / 50
 
-    offsetx = gx / 2 - sw / 2
-    offsety = gy / 2 - sh / 2
-    offsetc = pygame.Vector2(0, 0)
+    offset = pygame.Vector2(gx / 2 - sw / 2, gy / 2 - sh / 2)
+    offsetp = pygame.Vector2(0, 0)
 
     def load_sprites(directory, *args):
         sprites = []
@@ -102,12 +101,12 @@ def main():
             watermelonSprite.append(cropSprites[i])
         elif 'wheat' in cropSpriteNames[i]:
             wheatSprite.append(cropSprites[i])
-    carrotRect = pygame.Rect(0, 0, carrotSprite[0].get_width() * gxscale, carrotSprite[0].get_height() * gyscale)
-    cornRect = pygame.Rect(0, 0, cornSprite[0].get_width() * gxscale, cornSprite[0].get_height() * gyscale)
-    potatoRect = pygame.Rect(0, 0, potatoSprite[0].get_width() * gxscale, potatoSprite[0].get_height() * gyscale)
-    tomatoRect = pygame.Rect(0, 0, tomatoSprite[0].get_width() * gxscale, tomatoSprite[0].get_height() * gyscale)
-    watermelonRect = pygame.Rect(0, 0, watermelonSprite[0].get_width() * gxscale, watermelonSprite[0].get_height() * gyscale)
-    wheatRect = pygame.Rect(0, 0, wheatSprite[0].get_width() * gxscale, wheatSprite[0].get_height() * gyscale)
+    carrotRect = pygame.Rect(0, 0, carrotSprite[0].get_width(), carrotSprite[0].get_height())
+    cornRect = pygame.Rect(0, 0, cornSprite[0].get_width(), cornSprite[0].get_height())
+    potatoRect = pygame.Rect(0, 0, potatoSprite[0].get_width(), potatoSprite[0].get_height())
+    tomatoRect = pygame.Rect(0, 0, tomatoSprite[0].get_width(), tomatoSprite[0].get_height())
+    watermelonRect = pygame.Rect(0, 0, watermelonSprite[0].get_width(), watermelonSprite[0].get_height())
+    wheatRect = pygame.Rect(0, 0, wheatSprite[0].get_width(), wheatSprite[0].get_height())
 
     ground = pygame.transform.scale(sprites[0], (gx, gy))
     tiles = [pygame.Surface((tilew, tilew))]
@@ -119,7 +118,7 @@ def main():
     objList = []
     typeIdList = []
 
-    barnRect = pygame.Rect(0, 0, 19 * gxscale, 15 * gyscale)
+    barnRect = pygame.Rect(0, 0, 19 * gxscale, 15 * gxscale)
     barnSprite = pygame.image.load("sprites/barn2.png", "barn2.png")
     barn = Structure(pygame.transform.scale(barnSprite, (barnSprite.get_width() * gxscale, barnSprite.get_height() * gxscale)), barnRect)
     typeIdList.append(barn)
@@ -213,7 +212,7 @@ def main():
     debugMode = False
     debugList = ''
     renderRects = False
-
+    
     Clock = pygame.time.Clock()
     while True:
         dt = Clock.tick(60)/1000.0
@@ -241,14 +240,11 @@ def main():
                 if event.key == pygame.K_F4:
                     renderRects = not renderRects
                 if event.key == pygame.K_e:
-                    interacting = bob.collideobjects(objList)
+                    interacting = objList[bob.collidelist(objList)]
                     if type(interacting) == Crop:
                         interacting.interact()
                 if event.key == pygame.K_x:
-                    tempRects = []
-                    for i in objList:
-                        tempRects.append(i.rect)
-                    print(bob.collideobjects(tempRects))
+                    print(objList[bob.collidelist(objList)])
 
 
         if quadbool <= 0:
@@ -273,43 +269,43 @@ def main():
         if math.dist((bobp), (bobc)) > bob_effectspeed:
             bobc.xy = tran(bob.x, bob.y, bob_effectspeed / math.sqrt(2) * movement.x , bob_effectspeed / math.sqrt(2) * movement.y)
         
-        # Player center right of horizontal center, offsetx is min: take distance past center, swap it to offsetx
-        if bobc.x > sw / 2 - bob.width / 2 and (offsetx == 0.0 and offsetx != gx - sw):
-            offsetx += bobc.x - sw / 2 + bob.width
+        # Player center right of horizontal center, offset.x is min: take distance past center, swap it to offset.x
+        if bobc.x > sw / 2 - bob.width / 2 and (offset.x == 0.0 and offset.x != gx - sw):
+            offset.x += bobc.x - sw / 2 + bob.width
             bobc.x = sw / 2 - bob.width
-        # Player center left of horizontal center, offsetx is max: take distance past center, swap to offsetx
-        elif bobc.x < sw / 2 - bob.width / 2 and (offsetx != 0.0 and offsetx == gx - sw):
-            offsetx += bobc.x - sw / 2 + bob.width
+        # Player center left of horizontal center, offset.x is max: take distance past center, swap to offset.x
+        elif bobc.x < sw / 2 - bob.width / 2 and (offset.x != 0.0 and offset.x == gx - sw):
+            offset.x += bobc.x - sw / 2 + bob.width
             bobc.x = sw / 2 - bob.width
         # 
-        elif offsetx > gx - sw:
-            bobc.x += offsetx - gx + sw
-            offsetx = gx - sw
-        elif offsetx < 0.0:
-            bobc.x += offsetx
-            offsetx = 0.0
+        elif offset.x > gx - sw:
+            bobc.x += offset.x - gx + sw
+            offset.x = gx - sw
+        elif offset.x < 0.0:
+            bobc.x += offset.x
+            offset.x = 0.0
 
-        if bobc.y > sh / 2 - bob.height / 2 and (offsety == 0.0 and offsety != gy - sh):
-            offsety += bobc.y - sh / 2 + bob.height
+        if bobc.y > sh / 2 - bob.height / 2 and (offset.y == 0.0 and offset.y != gy - sh):
+            offset.y += bobc.y - sh / 2 + bob.height
             bobc.y = sh / 2 - bob.height
-        elif bobc.y < sh / 2 - bob.height / 2 and (offsety != 0.0 and offsety == gy - sh):
-            offsety += bobc.y - sh / 2 + bob.height
+        elif bobc.y < sh / 2 - bob.height / 2 and (offset.y != 0.0 and offset.y == gy - sh):
+            offset.y += bobc.y - sh / 2 + bob.height
             bobc.y = sh / 2 - bob.height
-        elif offsety > gy - sh:
-            bobc.y += offsety - gy + sh
-            offsety = gy - sh
-        elif offsety < 0.0:
-            bobc.y += offsety
-            offsety = 0.0
+        elif offset.y > gy - sh:
+            bobc.y += offset.y - gy + sh
+            offset.y = gy - sh
+        elif offset.y < 0.0:
+            bobc.y += offset.y
+            offset.y = 0.0
 
-        if offsetx == 0.0 or offsetx == gx - sw:
+        if offset.x == 0.0 or offset.x == gx - sw:
             bob.x = bobc.x
         else:
-            offsetx = bobc.x - bob.x + offsetx
-        if offsety == 0.0 or offsety == gy - sh:
+            offset.x = bobc.x - bob.x + offset.x
+        if offset.y == 0.0 or offset.y == gy - sh:
             bob.y = bobc.y
         else:
-            offsety = bobc.y - bob.y + offsety
+            offset.y = bobc.y - bob.y + offset.y
 
         if bob.x < 0:
             bob.x += -bob.x
@@ -324,33 +320,37 @@ def main():
             bob.y += sh - bob.y - bob.height
             movement.y = movement.y * -1
 
-        for i in objList:
-            if bob.contains(i.rect):
-                interact = objList.index(i)
-
-
         if keys[pygame.K_SPACE]:
             if yes == False:
                 quadbool += 1
             elif yes == True:
                 quadbool -= 1
 
+
+        window.blit(ground, (- offset.x, - offset.y))
         for i in objList:
+            if bob.contains(i.rect):
+                interact = objList.index(i)
+
+        for i in objList:    
             if type(i) == Crop:
                 i.update(dt)
 
-        window.blit(ground, (- offsetx, - offsety))
         for i in objList:
-            window.blit(i.sprite, (i.rect.x - offsetx, i.rect.y - offsety))
+            i.rect.x -= (offset.x - offsetp.x)
+            i.rect.y -= (offset.y - offsetp.y)
+            
+        for i in objList:
+            window.blit(i.sprite, i.rect)
             if renderRects == True:
-                pygame.draw.rect(window, 'white', pygame.Surface.get_rect(i.sprite)) if type(i) == Structure else False
+                window.fill('red', i.rect)
         time_hour = math.floor(math.floor(game_time) / 60)
         time_minute = math.floor(game_time) - 60 * time_hour
         time_text = yay.render(str(time_hour) + ':' + ('0' + str(time_minute) if len(str(time_minute)) == 1 else str(time_minute)) + ' (' + time_of_day + ')', True, 'white')
         window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
         window.fill('blue', bob)
         if debugMode == True:
-            debugList = [offsetx, offsety, pygame.Vector2((sw, sh)), pygame.Vector2((gx, gy)), pygame.Vector2((bob.x, bob.y)), bobc.xy, condRes]
+            debugList = [offset.x, offset.y, pygame.Vector2((sw, sh)), pygame.Vector2((gx, gy)), pygame.Vector2((bob.x, bob.y)), bobc.xy, condRes]
             debugLineOffset = 0
             debugOffsets = yay.render("{}, {}".format(debugList[0], debugList[1]), True, 'white')
             window.blit(debugOffsets, (0, debugLineOffset))
@@ -368,5 +368,6 @@ def main():
         pygame.display.update()
 
         bobp.xy = bob
+        offsetp.xy = (offset.x, offset.y)
 
 main()
