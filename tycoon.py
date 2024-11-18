@@ -28,12 +28,13 @@ class Crop(Structure):
         else:
             self.sprite = self.stageSprites[3]
         if self.growthProgress >= 1.0:
-            self.harvestable == True
+            self.growthProgress = 1.0
+            self.harvestable = True
         else:
-            self.harvestable == False
+            self.harvestable = False
 
         # sprite 0, 1, or 2 based on stage. if plantable == false, render no sprite
-        if self.growthProgress >= 1.0:
+        if self.growthProgress == 1.0:
             self.growthStage = 2
         elif self.growthProgress >= 0.5:
             self.growthStage = 1
@@ -48,11 +49,12 @@ class Crop(Structure):
             self.sprite = self.stageSprites[2]
 
     def interact(self):
+        print(self.harvestable)
         if self.harvestable == True:
             self.growthProgress = 0.0
             self.planted = False
         elif self.planted == False:
-            self.planted == True
+            self.planted = True
 
 def main():
     sw = 600
@@ -123,7 +125,17 @@ def main():
     barn = Structure(pygame.transform.scale(barnSprite, (barnSprite.get_width() * gxscale, barnSprite.get_height() * gxscale)), barnRect)
     typeIdList.append(barn)
 
-    wheatCrop = Crop(wheatSprite[0], wheatRect, wheatSprite, 'wheat', 0.5)
+    carrotCrop = Crop(carrotSprite[0], carrotRect, carrotSprite, 'carrot', 0.05)
+    typeIdList.append(carrotCrop)
+    cornCrop = Crop(cornSprite[0], cornRect, cornSprite, 'corn', 0.05)
+    typeIdList.append(cornCrop)
+    potatoCrop = Crop(potatoSprite[0], potatoRect, potatoSprite, 'potato', 0.05)
+    typeIdList.append(potatoCrop)
+    tomatoCrop = Crop(tomatoSprite[0], tomatoRect, tomatoSprite, 'tomato', 0.05)
+    typeIdList.append(tomatoCrop)
+    watermelonCrop = Crop(watermelonSprite[0], watermelonRect, watermelonSprite, 'watermelon', 0.05)
+    typeIdList.append(watermelonCrop)
+    wheatCrop = Crop(wheatSprite[0], wheatRect, wheatSprite, 'wheat', 0.05)
     typeIdList.append(wheatCrop)
 
     objectmap = [
