@@ -49,7 +49,6 @@ class Crop(Structure):
             self.sprite = self.stageSprites[2]
 
     def interact(self):
-        print(self.harvestable)
         if self.harvestable == True:
             self.growthProgress = 0.0
             self.planted = False
@@ -70,6 +69,8 @@ def main():
 
     offset = pygame.Vector2(gx / 2 - sw / 2, gy / 2 - sh / 2)
     offsetp = pygame.Vector2(0, 0)
+
+    yay = pygame.font.SysFont('calibri', 20, bold=True)
 
     def load_sprites(directory, *args):
         sprites = []
@@ -209,7 +210,44 @@ def main():
     bobc = pygame.math.Vector2(0.0, 0.0)
     movement = pygame.math.Vector2(1, 1)
 
-    yay = pygame.font.SysFont('calibri', 20, bold=True)
+    money = 100
+
+    carrotProduce = 0
+    carrotSeeds = 0
+    cornProduce = 0
+    cornSeeds = 0
+    potatoProduce = 0
+    potatoSeeds = 0
+    tomatoProduce = 0
+    tomatoSeeds = 0
+    watermelonProduce = 0
+    watermelonSeeds = 0
+    wheatProduce = 0
+    wheatSeeds = 0
+
+    corn = {
+        'buy', 50,
+        'sell', 70,
+
+    }
+
+    buyCost = {
+        'carrot', 15,
+        'corn', 50,
+        'potato', 50,
+        'tomato', 50,
+        'watermelon', 65,
+        'wheat', 50
+    }
+
+    sellCost = {
+        'carrot', 15,
+        'corn', 70,
+        'potato', 20,
+        'tomato', 35,
+        'watermelon', 100,
+        'wheat', 15
+    }
 
     def tran(x, y, addx, addy):
         translated = (x + addx, y + addy)
