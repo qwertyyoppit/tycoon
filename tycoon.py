@@ -23,7 +23,6 @@ class Crop(Structure):
         self.harvestable = False
         self.planted = True
         self.cropYields = cropYields
-        self.yieldRange = len(cropYields)
     
     def update(self, dt):
         if self.planted == True:
@@ -56,11 +55,11 @@ class Crop(Structure):
             chance = random.randint(0, 1000) / 1000
             randomYield = 0
             for i in range(len(self.cropYields)-1):
-                if chance < self.cropYields[i][1]:
+                if chance <= self.cropYields[i][1]:
                     randomYield = self.cropYields[i][0]
+            produce(self.cropType)[1] += randomYield
             self.growthProgress = 0.0
             self.planted = False
-            exec(self.cropType + 'Produce  += ')
         elif self.planted == False:
             self.planted = True
 
@@ -170,7 +169,7 @@ for i in range(len(objectmap)):
         index = typeIdList[objectmap[i]-1]
         tempStructure = Structure(index.sprite, pygame.Rect((i * tilew - gx * (math.floor(i / (50))), tilew * (math.floor(i / (50)) + 1)), (index.rect.width, index.rect.height)))
         if type(index) == Crop:
-            objList.append(Crop(tempStructure.sprite, tempStructure.rect, index.stageSprites, index.cropType, index.baseGrowthRate, index.cropYield))
+            objList.append(Crop(tempStructure.sprite, tempStructure.rect, index.stageSprites, index.cropType, index.baseGrowthRate, index.cropYields))
         else:
             objList.append(tempStructure)
 
@@ -220,35 +219,40 @@ movement = pygame.math.Vector2(1, 1)
 
 money = 100
 
-carrotProduce = 0
-carrotSeeds = 0
-cornProduce = 0
-cornSeeds = 0
-potatoProduce = 0
-potatoSeeds = 0
-tomatoProduce = 0
-tomatoSeeds = 0
-watermelonProduce = 0
-watermelonSeeds = 0
-wheatProduce = 0
-wheatSeeds = 1
+produce = {
+    'carrot': ['carrot', 0],
+    'corn': ['corn', 0],
+    'potato': ['potato', 0],
+    'tomato': ['tomato', 0],
+    'watermelon': ['watermelon', 0],
+    'wheat': ['wheat', 0]
+}
+
+seeds = {
+    'carrot': 0,
+    'corn': 0,
+    'potato': 0,
+    'tomato': 0,
+    'watermelon': 0,
+    'wheat': 0
+}
 
 buyValue = {
-    'carrot', 15,
-    'corn', 60,
-    'potato', 25,
-    'tomato', 40,
-    'watermelon', 80,
-    'wheat', 10
+    'carrot': 15,
+    'corn': 60,
+    'potato': 25,
+    'tomato': 40,
+    'watermelon': 80,
+    'wheat': 10
 }
 
 sellValue = {
-    'carrot', 10, # 10 * 2-3
-    'corn', 40, # 40 * 2-3
-    'potato', 20, # 20 * 2-4
-    'tomato', 25, # 25 * 2-4
-    'watermelon', 100, # 100 * 1-2 (2 rare)
-    'wheat', 5 # 10 * 3-5
+    'carrot': 10, # 10 * 2-3
+    'corn': 40, # 40 * 2-3
+    'potato': 20, # 20 * 2-4
+    'tomato': 25, # 25 * 2-4
+    'watermelon': 100, # 100 * 1-2 (2 rare)
+    'wheat': 5 # 10 * 3-5
 }
 
 def tran(x, y, addx, addy):
@@ -396,9 +400,13 @@ while True:
         window.blit(i.sprite, i.rect)
         if renderRects == True:
             window.fill('red', i.rect)
+
     time_hour = math.floor(math.floor(game_time) / 60)
     time_minute = math.floor(game_time) - 60 * time_hour
     time_text = yay.render(str(time_hour) + ':' + ('0' + str(time_minute) if len(str(time_minute)) == 1 else str(time_minute)) + ' (' + time_of_day + ')', True, 'white')
+
+    
+
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
     window.fill('blue', bob)
     if debugMode == True:
