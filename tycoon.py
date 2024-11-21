@@ -262,6 +262,10 @@ def tran(x, y, addx, addy):
 quadbool = 0
 yes = False
 interact = None
+inventory = True
+invBackground = pygame.Rect((sw - 400) / 3, (sh - 550) / 3, 400, 550)
+invBackSurf = pygame.Surface((invBackground.width, invBackground.height), pygame.SRCALPHA)
+invBackSurf.fill(pygame.Color(14, 14, 14, 140), invBackground)
 
 # debug tools
 condRes = 'Else'
@@ -301,6 +305,8 @@ while True:
                     interacting.interact()
             if event.key == pygame.K_x:
                 print(objList[bob.collidelist(objList)])
+            if event.key == pygame.K_i:
+                inventory = not inventory
 
 
     if quadbool <= 0:
@@ -401,14 +407,16 @@ while True:
         if renderRects == True:
             window.fill('red', i.rect)
 
+    window.fill('blue', bob)
+
     time_hour = math.floor(math.floor(game_time) / 60)
     time_minute = math.floor(game_time) - 60 * time_hour
     time_text = yay.render(str(time_hour) + ':' + ('0' + str(time_minute) if len(str(time_minute)) == 1 else str(time_minute)) + ' (' + time_of_day + ')', True, 'white')
 
-    
+    if inventory == True:
+        window.blit(invBackSurf, invBackground)
 
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
-    window.fill('blue', bob)
     if debugMode == True:
         debugList = [offset.x, offset.y, pygame.Vector2((sw, sh)), pygame.Vector2((gx, gy)), pygame.Vector2((bob.x, bob.y)), bobc.xy, condRes]
         debugLineOffset = 0
