@@ -57,7 +57,7 @@ class Crop(Structure):
             for i in range(len(self.cropYields)-1):
                 if chance <= self.cropYields[i][1]:
                     randomYield = self.cropYields[i][0]
-            produce(self.cropType)[1] += randomYield
+            produce[self.cropType][1] += randomYield
             self.growthProgress = 0.0
             self.planted = False
         elif self.planted == False:
@@ -133,7 +133,7 @@ barnSprite = pygame.image.load("sprites/barn2.png", "barn2.png")
 barn = Structure(pygame.transform.scale(barnSprite, (barnSprite.get_width() * gxscale, barnSprite.get_height() * gxscale)), barnRect)
 typeIdList.append(barn)
 
-carrotCrop = Crop(carrotSprite[0], carrotRect, carrotSprite, 'carrot', 0.05, [(2, 0.5), (3, 1.0)])
+carrotCrop = Crop(carrotSprite[0], carrotRect, carrotSprite, 'carrot', 0.5, [(2, 0.5), (3, 1.0)])
 typeIdList.append(carrotCrop)
 cornCrop = Crop(cornSprite[0], cornRect, cornSprite, 'corn', 0.05, [(2, 0.5), (3, 1.0)])
 typeIdList.append(cornCrop)
@@ -263,9 +263,12 @@ quadbool = 0
 yes = False
 interact = None
 inventory = True
-invBackground = pygame.Rect((sw - 400) / 3, (sh - 550) / 3, 400, 550)
-invBackSurf = pygame.Surface((invBackground.width, invBackground.height), pygame.SRCALPHA)
-invBackSurf.fill(pygame.Color(14, 14, 14, 140), invBackground)
+invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
+invItemListRect = pygame.Rect(sw / 2 - 325 / 2, sh / 2 - 425 / 2, 325, 450)
+invProduceList = ''
+for i in produce:
+    invProduceList += i + '|'
+invProduceList = invProduceList[:-1]
 
 # debug tools
 condRes = 'Else'
@@ -414,7 +417,10 @@ while True:
     time_text = yay.render(str(time_hour) + ':' + ('0' + str(time_minute) if len(str(time_minute)) == 1 else str(time_minute)) + ' (' + time_of_day + ')', True, 'white')
 
     if inventory == True:
-        window.blit(invBackSurf, invBackground)
+        window.fill((25,25,25), invBackground)
+        ok = invProduceList.split('|')
+        for i in range(len(ok)-1):
+            window.blit(yay.render(ok[i] + 's: ' + str(produce[ok[i]][1]), True, 'white'), (invItemListRect.x, invItemListRect.y + 40 * i))
 
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
     if debugMode == True:
