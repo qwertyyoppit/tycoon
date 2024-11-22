@@ -26,7 +26,7 @@ class Crop(Structure):
     
     def update(self, dt):
         if self.planted == True:
-            self.growthProgress += self.baseGrowthRate * dt
+            self.growthProgress += self.baseGrowthRate * dt * 10 if cropCheat == True else self.baseGrowthRate * dt
         else:
             self.sprite = self.stageSprites[3]
         if self.growthProgress >= 1.0:
@@ -62,7 +62,9 @@ class Crop(Structure):
             self.growthProgress = 0.0
             self.planted = False
         elif self.planted == False:
-            self.planted = True
+            if seeds[self.cropType][1] > 0:
+                self.planted = True
+                seeds[self.cropType][1] -= 1
 
 sw = 600
 sh = 600
@@ -230,12 +232,12 @@ produce = {
 }
 
 seeds = {
-    'carrot': ['carrot', 0],
-    'corn': ['corn', 0],
-    'potato': ['potato', 0],
-    'tomato': ['tomato', 0],
-    'watermelon': ['watermelon', 0],
-    'wheat': ['wheat', 0]
+    'carrot': ['carrot', 10],
+    'corn': ['corn', 10],
+    'potato': ['potato', 10],
+    'tomato': ['tomato', 10],
+    'watermelon': ['watermelon', 10],
+    'wheat': ['wheat', 10]
 }
 
 buyValue = {
@@ -263,7 +265,7 @@ def tran(x, y, addx, addy):
 quadbool = 0
 yes = False
 interact = None
-inventory = True
+inventory = False
 invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
 invItemListRect = pygame.Rect(invBackground.x + 25, invBackground.y + 75, 325, 450)
 invProduceCountPos = pygame.Vector2(invBackground.x + invBackground.width * 0.5, invItemListRect.y)
@@ -277,8 +279,11 @@ for i in seeds:
     invSeedList += i + '|'
 invSeedList = invSeedList[:-1]
 
+controlsText = yay.render("WASD/Arrow keys to move, E to plant/harvest, TAB for inventory", True, "white", "black")
+
 # debug tools
 condRes = 'Else'
+cropCheat = False
 debugMode = False
 debugList = ''
 renderRects = False
@@ -309,6 +314,8 @@ while True:
                 debugMode = not debugMode
             if event.key == pygame.K_F4:
                 renderRects = not renderRects
+            if event.key == pygame.K_F5:
+                cropCheat = not cropCheat
             if event.key == pygame.K_e:
                 interacting = objList[bob.collidelist(objList)]
                 if type(interacting) == Crop:
@@ -429,11 +436,13 @@ while True:
         tempSeedList = invSeedList.split('|')
         produceText = yay.render("Produce", True, "white")
         window.blit(produceText, (invProduceCountPos.x - produceText.get_width() / 2, invProduceCountPos.y - 40))
-        for i in range(len(tempProduceList)-1):
+        seedText = yay.render("Seeds", True, "white")
+        window.blit(seedText, (invSeedCountPos.x - seedText.get_width() / 2, invSeedCountPos.y - 40))
+        for i in range(len(tempProduceList)):
             window.blit(yay.render(tempProduceList[i] + 's: ', True, 'white'), (invItemListRect.x, invItemListRect.y + 40 * i))
             invProduceCount = yay.render(str(produce[tempProduceList[i]][1]), True, 'white')
             window.blit(invProduceCount, (invProduceCountPos.x - invProduceCount.get_width() / 2, invProduceCountPos.y + 40 * i))
-        for i in range(len(tempSeedList)-1):
+        for i in range(len(tempSeedList)):
             invSeedCount = yay.render(str(seeds[tempSeedList[i]][1]), True, 'white')
             window.blit(invSeedCount, (invSeedCountPos.x - invSeedCount.get_width() / 2, invSeedCountPos.y + 40 * i))
 
@@ -453,6 +462,8 @@ while True:
         debugCondRes = yay.render(str(debugList[6]), True, 'white')
         window.blit(debugCondRes, (0, debugLineOffset))
         debugLineOffset += debugCondRes.get_height()
+    
+    window.blit(controlsText, (5, sh - controlsText.get_height()))
     
     pygame.display.update()
 
