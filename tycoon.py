@@ -53,7 +53,6 @@ class Crop(Structure):
     def interact(self):
         if self.harvestable == True:
             chance = random.randint(0, 1000) / 1000
-            print(chance)
             randomYield = 0
             for i in range(len(self.cropYields)):
                 if chance <= self.cropYields[i][1]:
@@ -158,9 +157,9 @@ objectmap = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 5, 0, 6, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -231,12 +230,12 @@ produce = {
 }
 
 seeds = {
-    'carrot': 0,
-    'corn': 0,
-    'potato': 0,
-    'tomato': 0,
-    'watermelon': 0,
-    'wheat': 0
+    'carrot': ['carrot', 0],
+    'corn': ['corn', 0],
+    'potato': ['potato', 0],
+    'tomato': ['tomato', 0],
+    'watermelon': ['watermelon', 0],
+    'wheat': ['wheat', 0]
 }
 
 buyValue = {
@@ -266,11 +265,17 @@ yes = False
 interact = None
 inventory = True
 invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
-invItemListRect = pygame.Rect(sw / 2 - 325 / 2, sh / 2 - 425 / 2, 325, 450)
+invItemListRect = pygame.Rect(invBackground.x + 25, invBackground.y + 75, 325, 450)
+invProduceCountPos = pygame.Vector2(invBackground.x + invBackground.width * 0.5, invItemListRect.y)
+invSeedCountPos = pygame.Vector2(invBackground.x + invBackground.width * 0.75, invItemListRect.y)
 invProduceList = ''
 for i in produce:
     invProduceList += i + '|'
 invProduceList = invProduceList[:-1]
+invSeedList = ''
+for i in seeds:
+    invSeedList += i + '|'
+invSeedList = invSeedList[:-1]
 
 # debug tools
 condRes = 'Else'
@@ -420,9 +425,17 @@ while True:
 
     if inventory == True:
         window.fill((25,25,25), invBackground)
-        ok = invProduceList.split('|')
-        for i in range(len(ok)-1):
-            window.blit(yay.render(ok[i] + 's: ' + str(produce[ok[i]][1]), True, 'white'), (invItemListRect.x, invItemListRect.y + 40 * i))
+        tempProduceList = invProduceList.split('|')
+        tempSeedList = invSeedList.split('|')
+        produceText = yay.render("Produce", True, "white")
+        window.blit(produceText, (invProduceCountPos.x - produceText.get_width() / 2, invProduceCountPos.y - 40))
+        for i in range(len(tempProduceList)-1):
+            window.blit(yay.render(tempProduceList[i] + 's: ', True, 'white'), (invItemListRect.x, invItemListRect.y + 40 * i))
+            invProduceCount = yay.render(str(produce[tempProduceList[i]][1]), True, 'white')
+            window.blit(invProduceCount, (invProduceCountPos.x - invProduceCount.get_width() / 2, invProduceCountPos.y + 40 * i))
+        for i in range(len(tempSeedList)-1):
+            invSeedCount = yay.render(str(seeds[tempSeedList[i]][1]), True, 'white')
+            window.blit(invSeedCount, (invSeedCountPos.x - invSeedCount.get_width() / 2, invSeedCountPos.y + 40 * i))
 
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
     if debugMode == True:
