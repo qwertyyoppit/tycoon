@@ -53,10 +53,12 @@ class Crop(Structure):
     def interact(self):
         if self.harvestable == True:
             chance = random.randint(0, 1000) / 1000
+            print(chance)
             randomYield = 0
-            for i in range(len(self.cropYields)-1):
+            for i in range(len(self.cropYields)):
                 if chance <= self.cropYields[i][1]:
                     randomYield = self.cropYields[i][0]
+                    break
             produce[self.cropType][1] += randomYield
             self.growthProgress = 0.0
             self.planted = False
@@ -308,7 +310,7 @@ while True:
                     interacting.interact()
             if event.key == pygame.K_x:
                 print(objList[bob.collidelist(objList)])
-            if event.key == pygame.K_i:
+            if event.key == pygame.K_TAB:
                 inventory = not inventory
 
 
