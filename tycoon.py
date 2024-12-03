@@ -285,9 +285,12 @@ yes = False
 interact = None
 inventory = False
 invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
-invItemListRect = pygame.Rect(invBackground.x + 25, invBackground.y + 75, 325, 450)
-invProduceCountPos = pygame.Vector2(invBackground.x + invBackground.width * 0.5, invItemListRect.y)
-invSeedCountPos = pygame.Vector2(invBackground.x + invBackground.width * 0.75, invItemListRect.y)
+invListRect = pygame.Rect(invBackground.x + 25, invBackground.y + 75, 325, 450)
+invProdPos = pygame.Vector2(invBackground.x + invBackground.width * 0.5, invListRect.y)
+invSeedPos = pygame.Vector2(invBackground.x + invBackground.width * 0.75, invListRect.y)
+
+buttonSize = pygame.Vector2(30, 25)
+
 invProduceList = ''
 for i in produce:
     invProduceList += i + '|'
@@ -429,7 +432,7 @@ while True:
         if bob.contains(i.rect):
             interact = objList.index(i)
 
-    for i in objList:    
+    for i in objList:
         if type(i) == Crop:
             i.update(dt)
 
@@ -439,7 +442,9 @@ while True:
         
     for i in objList:
         window.blit(i.sprite, i.rect)
-        if renderRects == True:
+
+    if renderRects == True:
+        for i in objList:
             window.fill('red', i.rect)
 
     window.fill('blue', bob)
@@ -453,16 +458,16 @@ while True:
         tempProduceList = invProduceList.split('|')
         tempSeedList = invSeedList.split('|')
         produceText = yay.render("Produce", True, "white")
-        window.blit(produceText, (invProduceCountPos.x - produceText.get_width() / 2, invProduceCountPos.y - 40))
+        window.blit(produceText, (invProdPos.x - produceText.get_width() / 2, invProdPos.y - 40))
         seedText = yay.render("Seeds", True, "white")
-        window.blit(seedText, (invSeedCountPos.x - seedText.get_width() / 2, invSeedCountPos.y - 40))
+        window.blit(seedText, (invSeedPos.x - seedText.get_width() / 2, invSeedPos.y - 40))
         for i in range(len(tempProduceList)):
-            window.blit(yay.render(tempProduceList[i] + 's: ', True, 'white'), (invItemListRect.x, invItemListRect.y + 40 * i))
+            window.blit(yay.render(tempProduceList[i] + ('s: ' if tempProduceList[i] != 'wheat' else ': '), True, 'white'), (invListRect.x, invListRect.y + 40 * i))
             invProduceCount = yay.render(str(produce[tempProduceList[i]][1]), True, 'white')
-            window.blit(invProduceCount, (invProduceCountPos.x - invProduceCount.get_width() / 2, invProduceCountPos.y + 40 * i))
+            window.blit(invProduceCount, (invProdPos.x - 20, invProdPos.y + 40 * i))
         for i in range(len(tempSeedList)):
             invSeedCount = yay.render(str(seeds[tempSeedList[i]][1]), True, 'white')
-            window.blit(invSeedCount, (invSeedCountPos.x - invSeedCount.get_width() / 2, invSeedCountPos.y + 40 * i))
+            window.blit(invSeedCount, (invSeedPos.x - 20, invSeedPos.y + 40 * i))
 
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
     if debugMode == True:
