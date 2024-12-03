@@ -170,7 +170,7 @@ objectmap = [
 for i in range(len(objectmap)):
     if objectmap[i] != 0:
         index = typeIdList[objectmap[i]-1]
-        tempStructure = Structure(index.sprite, pygame.Rect((i * tilew - gx * (math.floor(i / (50))) + (index.sprite.get_width() - index.rect.width) / 2, tilew * (math.floor(i / (50)) + 1) + index.sprite.get_height() - index.rect.height), (index.rect.width, index.rect.height)))
+        tempStructure = Structure(index.sprite, pygame.Rect((i * tilew - gx * (math.floor(i / (50))), tilew * (math.floor(i / (50)) + 1)), (index.rect.width, index.rect.height)))
         if type(index) == Crop:
             objList.append(Crop(tempStructure.sprite, tempStructure.rect, index.stageSprites, index.cropType, index.baseGrowthRate, index.cropYields))
         else:
