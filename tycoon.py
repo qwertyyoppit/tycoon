@@ -284,12 +284,22 @@ quadbool = 0
 yes = False
 interact = None
 inventory = False
+shop = False
 invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
-invListRect = pygame.Rect(invBackground.x + 25, invBackground.y + 75, 325, 450)
+invListRect = pygame.Rect(invBackground.x + 20, invBackground.y + 75, 325, 450)
 invProdPos = pygame.Vector2(invBackground.x + invBackground.width * 0.5, invListRect.y)
 invSeedPos = pygame.Vector2(invBackground.x + invBackground.width * 0.75, invListRect.y)
 
-buttonSize = pygame.Vector2(30, 25)
+buttonSize = pygame.Vector2(50, 30)
+
+sellButtons = [
+    pygame.Rect((invProdPos.x, invProdPos.y), buttonSize),
+    pygame.Rect((invProdPos.x, invProdPos.y + 40), buttonSize),
+    pygame.Rect((invProdPos.x, invProdPos.y + 40 * 2), buttonSize),
+    pygame.Rect((invProdPos.x, invProdPos.y + 40 * 3), buttonSize),
+    pygame.Rect((invProdPos.x, invProdPos.y + 40 * 4), buttonSize),
+    pygame.Rect((invProdPos.x, invProdPos.y + 40 * 5), buttonSize)
+]
 
 invProduceList = ''
 for i in produce:
@@ -299,6 +309,8 @@ invSeedList = ''
 for i in seeds:
     invSeedList += i + '|'
 invSeedList = invSeedList[:-1]
+
+mouseHandled = False
 
 controlsText = yay.render("WASD/Arrow keys to move, E to plant/harvest, TAB for inventory", True, "white", "black")
 
@@ -345,6 +357,8 @@ while True:
                 print(objList[bob.collidelist(objList)])
             if event.key == pygame.K_TAB:
                 inventory = not inventory
+            if event.key == pygame.K_o:
+                shop = not shop
 
 
     if quadbool <= 0:
@@ -354,6 +368,8 @@ while True:
     
     bobc.xy = (0.0, 0.0)
     bob_effectspeed = bob_basespeed
+
+    mouse = pygame.mouse.get_pressed()
 
     keys = pygame.key.get_pressed()
     left = keys[pygame.K_a] or keys[pygame.K_LEFT]
@@ -468,6 +484,9 @@ while True:
         for i in range(len(tempSeedList)):
             invSeedCount = yay.render(str(seeds[tempSeedList[i]][1]), True, 'white')
             window.blit(invSeedCount, (invSeedPos.x - 20, invSeedPos.y + 40 * i))
+        if shop == True:
+            for i in range(len(produce)):
+                window.fill((100,85,150),(pygame.Rect((invProdPos.x, invProdPos + 40 * i))))
 
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
     if debugMode == True:
@@ -492,3 +511,6 @@ while True:
 
     bobp.xy = bob
     offsetp.xy = (offset.x, offset.y)
+
+    if os.path.exists('tycoon.py') != True:
+        exit()
