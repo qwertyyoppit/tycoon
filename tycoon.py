@@ -285,21 +285,13 @@ yes = False
 interact = None
 inventory = False
 shop = False
+buttonSize = pygame.Vector2(50, 30)
 invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
 invListRect = pygame.Rect(invBackground.x + 20, invBackground.y + 75, 325, 450)
-invProdPos = pygame.Vector2(invBackground.x + invBackground.width * 0.5, invListRect.y)
-invSeedPos = pygame.Vector2(invBackground.x + invBackground.width * 0.75, invListRect.y)
+invProdPos = pygame.Vector2(invBackground.x + invBackground.width * 0.4, invListRect.y)
+invSeedPos = pygame.Vector2(invBackground.x + invBackground.width * 0.6, invListRect.y)
 
-buttonSize = pygame.Vector2(50, 30)
 
-sellButtons = [
-    pygame.Rect((invProdPos.x, invProdPos.y), buttonSize),
-    pygame.Rect((invProdPos.x, invProdPos.y + 40), buttonSize),
-    pygame.Rect((invProdPos.x, invProdPos.y + 40 * 2), buttonSize),
-    pygame.Rect((invProdPos.x, invProdPos.y + 40 * 3), buttonSize),
-    pygame.Rect((invProdPos.x, invProdPos.y + 40 * 4), buttonSize),
-    pygame.Rect((invProdPos.x, invProdPos.y + 40 * 5), buttonSize)
-]
 
 invProduceList = ''
 for i in produce:
@@ -484,9 +476,6 @@ while True:
         for i in range(len(tempSeedList)):
             invSeedCount = yay.render(str(seeds[tempSeedList[i]][1]), True, 'white')
             window.blit(invSeedCount, (invSeedPos.x - 20, invSeedPos.y + 40 * i))
-        if shop == True:
-            for i in range(len(produce)):
-                window.fill((100,85,150),(pygame.Rect((invProdPos.x, invProdPos + 40 * i))))
 
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
     if debugMode == True:
