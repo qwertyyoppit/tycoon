@@ -218,8 +218,10 @@ for i in range(len(groundmap)):
     if groundmap[i] != 0:
         ground.blit(tiles[groundmap[i]], (i * tilew - gx * (math.floor(i / (50))), tilew * (math.floor(i / (50)) + 1)))
 
-def toCenter(width, height, *args):
-    return (width / 2 - args[0].width / 2, height / 2 - args[0].height / 2)
+def toCenter(centered, target, *args):
+    result = None
+    if type(centered) == pygame.Surface:
+        result = target.x
 
 game_time = 480.0
 baseTimeSpeed = 1.0
@@ -239,6 +241,8 @@ bobc = pygame.math.Vector2(0.0, 0.0)
 movement = pygame.math.Vector2(1, 1)
 
 money = 100
+
+itemIds = ['carrot', 'corn', 'potato', 'tomato', 'watermelon', 'wheat']
 
 produce = {
     'carrot': ['carrot', 0],
@@ -289,8 +293,8 @@ invCat = 'produce'
 invItemSelected = 0
 buttonSize = pygame.Vector2(50, 30)
 invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
-invItemPos = pygame.Vector2(invBackground.x + 50 * 3, invBackground.y + 75)
-invCatRect = pygame.Rect(invBackground.x + 25, invItemPos.y, 100, 25)
+invItemPos = pygame.Vector2(invBackground.x + 50 * 3, invBackground.y + 50 * 2)
+invItemRect = pygame.Rect(invBackground.x + 75, invItemPos.y, 100, 25)
 invProdTab = pygame.Rect(invBackground.x + 50 * 1, invBackground.y + 25, 75, 50)
 invSeedTab = pygame.Rect(invBackground.x + 50 * 3, invBackground.y + 25, 75, 50)
 invBuyRect = pygame.Rect(invBackground.x + 50 * 5, invItemPos.y, 30, 30)
@@ -458,10 +462,15 @@ while True:
     if inventory == True:
         window.fill((25,25,25), invBackground)
         produceText = yay.render("Produce", True, "white")
+        window.fill((120,120,120), invProdTab)
         window.blit(produceText, invProdTab)
         seedText = yay.render("Seeds", True, "white")
+        window.fill((120,120,120), invSeedTab)
         window.blit(seedText, invSeedTab)
-        yay.render(exec(invCat + '[invItemSelected]'))
+        itemText = yay.render(eval(invCat)[itemIds[invItemSelected]][0], True, 'white')
+        window.blit(itemText, invItemRect)
+        itemCount = yay.render(str(eval(invCat)[itemIds[invItemSelected]][1]), True, 'white')
+        window.blit(itemCount, invItemPos)
 
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
     if debugMode == True:
