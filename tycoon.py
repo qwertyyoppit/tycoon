@@ -511,6 +511,3 @@ while True:
 
     bobp.xy = bob
     offsetp.xy = (offset.x, offset.y)
-
-    if os.path.exists('tycoon.py') != True:
-        exit()
