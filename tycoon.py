@@ -318,10 +318,10 @@ invCat = 'produce'
 invItemSelected = 0
 
 invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
-invItemPos = pygame.Vector2(invBackground.x + 50 * 3, invBackground.y + 50 * 2)
-invItemRect = pygame.Rect(invBackground.x + 75, invItemPos.y, 100, 25)
-invItemUpRect = uiButton(pygame.Rect(invBackground.x + 75, invItemPos.y - 25, 100, 40), (117, 117, 117), (158, 158, 158))
-invItemDownRect = uiButton(pygame.Rect(invBackground.x + 75, invItemPos.y + 25, 100, 40), (117, 117, 117), (158, 158, 158))
+invItemPos = pygame.Vector2(invBackground.x + 50 * 3, invBackground.y + 50 * 3)
+invItemRect = pygame.Rect(invBackground.x + 75, invItemPos.y, 100, 50)
+invItemUpRect = uiButton(pygame.Rect(invBackground.x + 30, invItemPos.y - 40, 200, 40), (117, 117, 117), (158, 158, 158))
+invItemDownRect = uiButton(pygame.Rect(invBackground.x + 30, invItemPos.y + invItemRect.height, 200, 40), (117, 117, 117), (158, 158, 158))
 invProdTab = uiButton(pygame.Rect(invBackground.x + 50 * 1, invBackground.y + 25, 75, 30), (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
 invSeedTab = uiButton(pygame.Rect(invBackground.x + 50 * 3, invBackground.y + 25, 75, 30), (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
 invBuyRect = uiButton(pygame.Rect(invBackground.x + 50 * 5, invItemPos.y, 30, 30), (211, 47, 47), (237, 49, 49))
@@ -345,7 +345,7 @@ while True:
     game_time += dt * baseTimeRate
 
     mousePressed = pygame.mouse.get_pressed()
-    mousePos = pygame.mouse.get_pos
+    mousePos = pygame.mouse.get_pos()
 
     keys = pygame.key.get_pressed()
     left = keys[pygame.K_a] or keys[pygame.K_LEFT]
@@ -395,14 +395,18 @@ while True:
                 shop = not shop
         if event.type == pygame.MOUSEBUTTONDOWN:
             if pygame.mouse.get_pressed()[0]:
-                if invBuyRect.rect.collidepoint(mousePos) and inventory == True:
+                if invBuyRect.rect.collidepoint(mousePos) and inventory == True and shop == True:
                     events.append('invBuy')
-                if invSellRect.rect.collidepoint(mousePos) and inventory == True:
+                if invSellRect.rect.collidepoint(mousePos) and inventory == True and shop == True:
                     events.append('invSell')
                 if invItemUpRect.rect.collidepoint(mousePos) and inventory == True:
                     events.append('invItemUp')
                 if invItemDownRect.rect.collidepoint(mousePos) and inventory == True:
                     events.append('invItemDown')
+                if invProdTab.rect.collidepoint(mousePos) and inventory == True:
+                    events.append('invCatProd')
+                if invSeedTab.rect.collidepoint(mousePos) and inventory == True:
+                    events.append('invCatSeed')
 
 
     if quadbool <= 0:
@@ -514,20 +518,18 @@ while True:
         window.blit(produceText, (invProdTab.rect.x + invProdTab.rect.width / 2 - produceText.get_width() / 2, invProdTab.rect.y + invProdTab.rect.height / 2 - produceText.get_height() / 2))
         seedText = yay.render("Seeds", True, "white")
         window.blit(seedText, (invSeedTab.rect.x + invSeedTab.rect.width / 2 - seedText.get_width() / 2, invSeedTab.rect.y + invSeedTab.rect.height / 2 - seedText.get_height() / 2))
-        itemText = yay.render(eval(invCat)[itemIds[invItemSelected]][0], True, 'white')
-        window.blit(itemText, (invItemRect.x + invItemRect.width / 2 - itemText.get_width() / 2, invItemRect.y + invItemRect.height / 2 - itemText.get_height() / 2))
+        itemText = pygame.transform.scale_by(yay.render(eval(invCat)[itemIds[invItemSelected]][0], True, 'white'), 0.2)
+        window.blit(itemText, (invItemRect.x + invItemRect.width / 2 - itemText.get_width() / 2, invItemPos.y + invItemRect.height / 2 - itemText.get_height() / 2))
         itemCount = yay.render(str(eval(invCat)[itemIds[invItemSelected]][1]), True, 'white')
         window.blit(itemCount, (invItemPos.x - itemCount.get_width() / 2, invItemPos.y))
+        
+
         if 'invItemUp' in events:
             events.remove('invItemUp')
-            invItemSelected = invItemSelected - 1
-        if 'invItemDown' in events:
+            invItemSelected = invItemSelected - 1 if invItemSelected - 1 >= 0 else len(itemIds) - 1
+        elif 'invItemDown' in events:
             events.remove('invItemDown')
-            invItemSelected = invItemSelected + 1
-        if invItemSelected > len(itemIds) - 1:
-            invItemSelected = 0
-        if invItemSelected < 0:
-            invItemSelected = 0
+            invItemSelected = invItemSelected + 1 if invItemSelected + 1 < len(itemIds) else 0
 
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
     if debugMode == True:
