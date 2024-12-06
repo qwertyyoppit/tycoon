@@ -73,6 +73,33 @@ class Crop(Structure):
         else:
             return False
 
+class uiButton(pygame.Rect):
+    def __init__(self, x: float, y: float, width: float, height: float, color, colorHover=None, colorActive=None, colorActiveHover=None):
+        super().__init__(x, y, width, height)
+        self.color = color
+        if colorHover != None:
+            self.colorHover = colorHover
+        if colorActive != None:
+            self.colorActive = colorActive
+        if colorActiveHover != None:
+            self.colorActiveHover = colorActiveHover
+        self.active = False
+
+    def get_color(self):
+        if self.active == False:
+            if self.rect.collidepoint(pygame.mouse.get_pos()) and mouseHeld[0] == False:
+                return self.colorHover
+            else:
+                return self.color
+        elif self.active == True:
+            if self.rect.collidepoint(pygame.mouse.get_pos()):
+                return self.colorActiveHover
+            else:
+                return self.colorActive
+
+    def set_active(self, state=None):
+        self.active = not self.active if state == None else state
+
 sw = 600
 sh = 600
 
@@ -293,12 +320,12 @@ invItemSelected = 0
 invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
 invItemPos = pygame.Vector2(invBackground.x + 50 * 3, invBackground.y + 50 * 2)
 invItemRect = pygame.Rect(invBackground.x + 75, invItemPos.y, 100, 25)
-invItemUpRect = pygame.Rect(invBackground.x + 75, invItemPos.y - 25, 100, 40)
-invItemDownRect = pygame.Rect(invBackground.x + 75, invItemPos.y + 25, 100, 40)
-invProdTab = pygame.Rect(invBackground.x + 50 * 1, invBackground.y + 25, 75, 30)
-invSeedTab = pygame.Rect(invBackground.x + 50 * 3, invBackground.y + 25, 75, 30)
-invBuyRect = pygame.Rect(invBackground.x + 50 * 5, invItemPos.y, 30, 30)
-invSellRect = pygame.Rect(invBackground.x + 50 * 6, invItemPos.y, 30, 30)
+invItemUpRect = uiButton(invBackground.x + 75, invItemPos.y - 25, 100, 40, (117, 117, 117), (158, 158, 158))
+invItemDownRect = uiButton(invBackground.x + 75, invItemPos.y + 25, 100, 40, (117, 117, 117), (158, 158, 158))
+invProdTab = uiButton(invBackground.x + 50 * 1, invBackground.y + 25, 75, 30, (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
+invSeedTab = uiButton(invBackground.x + 50 * 3, invBackground.y + 25, 75, 30, (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
+invBuyRect = uiButton(invBackground.x + 50 * 5, invItemPos.y, 30, 30, (211, 47, 47), (237, 49, 49))
+invSellRect = uiButton(invBackground.x + 50 * 6, invItemPos.y, 30, 30, (67, 160, 71), (76, 175, 80))
 
 mouseHandled = True
 events = []
@@ -317,7 +344,8 @@ while True:
     dt = Clock.tick(60)/1000.0
     game_time += dt * baseTimeRate
 
-    mouse = pygame.mouse.get_pressed()
+    mousePressed = pygame.mouse.get_pressed()
+    mouseHeld = pygame.mouse.get_focused()
     mousePos = pygame.mouse.get_pos
 
     keys = pygame.key.get_pressed()
