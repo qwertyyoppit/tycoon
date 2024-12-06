@@ -73,9 +73,9 @@ class Crop(Structure):
         else:
             return False
 
-class uiButton(pygame.Rect):
-    def __init__(self, x: float, y: float, width: float, height: float, color, colorHover=None, colorActive=None, colorActiveHover=None):
-        super().__init__(x, y, width, height)
+class uiButton(object):
+    def __init__(self, rect, color, colorHover=None, colorActive=None, colorActiveHover=None):
+        self.rect = rect
         self.color = color
         if colorHover != None:
             self.colorHover = colorHover
@@ -87,7 +87,7 @@ class uiButton(pygame.Rect):
 
     def get_color(self):
         if self.active == False:
-            if self.rect.collidepoint(pygame.mouse.get_pos()) and mouseHeld[0] == False:
+            if self.rect.collidepoint(pygame.mouse.get_pos()) and mousePressed[0] == False:
                 return self.colorHover
             else:
                 return self.color
@@ -320,12 +320,12 @@ invItemSelected = 0
 invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
 invItemPos = pygame.Vector2(invBackground.x + 50 * 3, invBackground.y + 50 * 2)
 invItemRect = pygame.Rect(invBackground.x + 75, invItemPos.y, 100, 25)
-invItemUpRect = uiButton(invBackground.x + 75, invItemPos.y - 25, 100, 40, (117, 117, 117), (158, 158, 158))
-invItemDownRect = uiButton(invBackground.x + 75, invItemPos.y + 25, 100, 40, (117, 117, 117), (158, 158, 158))
-invProdTab = uiButton(invBackground.x + 50 * 1, invBackground.y + 25, 75, 30, (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
-invSeedTab = uiButton(invBackground.x + 50 * 3, invBackground.y + 25, 75, 30, (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
-invBuyRect = uiButton(invBackground.x + 50 * 5, invItemPos.y, 30, 30, (211, 47, 47), (237, 49, 49))
-invSellRect = uiButton(invBackground.x + 50 * 6, invItemPos.y, 30, 30, (67, 160, 71), (76, 175, 80))
+invItemUpRect = uiButton(pygame.Rect(invBackground.x + 75, invItemPos.y - 25, 100, 40), (117, 117, 117), (158, 158, 158))
+invItemDownRect = uiButton(pygame.Rect(invBackground.x + 75, invItemPos.y + 25, 100, 40), (117, 117, 117), (158, 158, 158))
+invProdTab = uiButton(pygame.Rect(invBackground.x + 50 * 1, invBackground.y + 25, 75, 30), (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
+invSeedTab = uiButton(pygame.Rect(invBackground.x + 50 * 3, invBackground.y + 25, 75, 30), (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
+invBuyRect = uiButton(pygame.Rect(invBackground.x + 50 * 5, invItemPos.y, 30, 30), (211, 47, 47), (237, 49, 49))
+invSellRect = uiButton(pygame.Rect(invBackground.x + 50 * 6, invItemPos.y, 30, 30), (67, 160, 71), (76, 175, 80))
 
 mouseHandled = True
 events = []
@@ -345,7 +345,6 @@ while True:
     game_time += dt * baseTimeRate
 
     mousePressed = pygame.mouse.get_pressed()
-    mouseHeld = pygame.mouse.get_focused()
     mousePos = pygame.mouse.get_pos
 
     keys = pygame.key.get_pressed()
@@ -396,13 +395,13 @@ while True:
                 shop = not shop
         if event.type == pygame.MOUSEBUTTONDOWN:
             if pygame.mouse.get_pressed()[0]:
-                if invBuyRect.collidepoint(mousePos) and inventory == True:
+                if invBuyRect.rect.collidepoint(mousePos) and inventory == True:
                     events.append('invBuy')
-                if invSellRect.collidepoint(mousePos) and inventory == True:
+                if invSellRect.rect.collidepoint(mousePos) and inventory == True:
                     events.append('invSell')
-                if invItemUpRect.collidepoint(mousePos) and inventory == True:
+                if invItemUpRect.rect.collidepoint(mousePos) and inventory == True:
                     events.append('invItemUp')
-                if invItemDownRect.collidepoint(mousePos) and inventory == True:
+                if invItemDownRect.rect.collidepoint(mousePos) and inventory == True:
                     events.append('invItemDown')
 
 
@@ -507,22 +506,28 @@ while True:
 
     if inventory == True:
         window.fill((25,25,25), invBackground)
-        window.fill((100,90,150), invProdTab)
-        window.fill((100,90,150), invSeedTab)
+        window.fill(invProdTab.get_color(), invProdTab)
+        window.fill(invSeedTab.get_color(), invSeedTab)
+        window.fill(invItemUpRect.get_color(), invItemUpRect)
+        window.fill(invItemDownRect.get_color(), invItemDownRect)
         produceText = yay.render("Produce", True, "white")
-        window.blit(produceText, invProdTab)
+        window.blit(produceText, (invProdTab.rect.x + invProdTab.rect.width / 2 - produceText.get_width() / 2, invProdTab.rect.y + invProdTab.rect.height / 2 - produceText.get_height() / 2))
         seedText = yay.render("Seeds", True, "white")
-        window.blit(seedText, invSeedTab)
+        window.blit(seedText, (invSeedTab.rect.x + invSeedTab.rect.width / 2 - seedText.get_width() / 2, invSeedTab.rect.y + invSeedTab.rect.height / 2 - seedText.get_height() / 2))
         itemText = yay.render(eval(invCat)[itemIds[invItemSelected]][0], True, 'white')
-        window.blit(itemText, invItemRect)
+        window.blit(itemText, (invItemRect.x + invItemRect.width / 2 - itemText.get_width() / 2, invItemRect.y + invItemRect.height / 2 - itemText.get_height() / 2))
         itemCount = yay.render(str(eval(invCat)[itemIds[invItemSelected]][1]), True, 'white')
-        window.blit(itemCount, invItemPos)
+        window.blit(itemCount, (invItemPos.x - itemCount.get_width() / 2, invItemPos.y))
         if 'invItemUp' in events:
             events.remove('invItemUp')
             invItemSelected = invItemSelected - 1
         if 'invItemDown' in events:
             events.remove('invItemDown')
             invItemSelected = invItemSelected + 1
+        if invItemSelected > len(itemIds) - 1:
+            invItemSelected = 0
+        if invItemSelected < 0:
+            invItemSelected = 0
 
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
     if debugMode == True:
