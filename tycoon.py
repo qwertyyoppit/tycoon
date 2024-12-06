@@ -5,6 +5,7 @@ from sys import exit
 import os
 
 pygame.init()
+
 class Structure(object):
     def __init__(self, sprite, rect):
         self.id = id
@@ -65,6 +66,12 @@ class Crop(Structure):
             if seeds[self.cropType][1] > 0:
                 self.planted = True
                 seeds[self.cropType][1] -= 1
+    
+    def get_interactable(self):
+        if self.harvestable == True or (self.planted == False and seeds[self.cropType][1] > 0) == True:
+            return True
+        else:
+            return False
 
 sw = 600
 sh = 600
@@ -159,7 +166,7 @@ objectmap = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 5, 0, 6, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 3, 0, 0, 4, 0, 0, 5, 0, 0, 6, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -218,11 +225,6 @@ for i in range(len(groundmap)):
     if groundmap[i] != 0:
         ground.blit(tiles[groundmap[i]], (i * tilew - gx * (math.floor(i / (50))), tilew * (math.floor(i / (50)) + 1)))
 
-def toCenter(centered, target, *args):
-    result = None
-    if type(centered) == pygame.Surface:
-        result = target.x
-
 game_time = 480.0
 baseTimeSpeed = 1.0
 
@@ -233,7 +235,7 @@ dayPeriods = ['midnight', 'morning', 'noon', 'evening']
 time_of_day = dayPeriods[0]
 
 bob = pygame.Rect(300.0, 100.0, 50.0, 50.0)
-bob.x, bob.y = toCenter(sw, sh, bob)
+bob.x, bob.y = sw / 2 - bob.width / 2, sh / 2 - bob.height / 2
 bob_basespeed = 4.0
 bob_effectspeed = bob_basespeed
 bobp = pygame.math.Vector2(0.0, 0.0)
@@ -280,10 +282,6 @@ sellValue = {
     'wheat': 5 # 10 * 3-5
 }
 
-def tran(x, y, addx, addy):
-    translated = (x + addx, y + addy)
-    return translated
-
 quadbool = 0
 yes = False
 interact = None
@@ -291,16 +289,19 @@ inventory = False
 shop = False
 invCat = 'produce'
 invItemSelected = 0
-buttonSize = pygame.Vector2(50, 30)
+
 invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
 invItemPos = pygame.Vector2(invBackground.x + 50 * 3, invBackground.y + 50 * 2)
 invItemRect = pygame.Rect(invBackground.x + 75, invItemPos.y, 100, 25)
-invProdTab = pygame.Rect(invBackground.x + 50 * 1, invBackground.y + 25, 75, 50)
-invSeedTab = pygame.Rect(invBackground.x + 50 * 3, invBackground.y + 25, 75, 50)
+invItemUpRect = pygame.Rect(invBackground.x + 75, invItemPos.y - 25, 100, 40)
+invItemDownRect = pygame.Rect(invBackground.x + 75, invItemPos.y + 25, 100, 40)
+invProdTab = pygame.Rect(invBackground.x + 50 * 1, invBackground.y + 25, 75, 30)
+invSeedTab = pygame.Rect(invBackground.x + 50 * 3, invBackground.y + 25, 75, 30)
 invBuyRect = pygame.Rect(invBackground.x + 50 * 5, invItemPos.y, 30, 30)
 invSellRect = pygame.Rect(invBackground.x + 50 * 6, invItemPos.y, 30, 30)
 
-mouseHandled = False
+mouseHandled = True
+events = []
 
 controlsText = yay.render("WASD/Arrow keys to move, E to plant/harvest, TAB for inventory", True, "white", "black")
 
@@ -315,6 +316,18 @@ Clock = pygame.time.Clock()
 while True:
     dt = Clock.tick(60)/1000.0
     game_time += dt * baseTimeRate
+
+    mouse = pygame.mouse.get_pressed()
+    mousePos = pygame.mouse.get_pos
+
+    keys = pygame.key.get_pressed()
+    left = keys[pygame.K_a] or keys[pygame.K_LEFT]
+    right = keys[pygame.K_d] or keys[pygame.K_RIGHT]
+    up = keys[pygame.K_w] or keys[pygame.K_UP]
+    down = keys[pygame.K_s] or keys[pygame.K_DOWN]
+    
+    movement = pygame.math.Vector2(right - left, down - up)
+
     if game_time > dayLength:
         game_time = game_time - dayLength
     if game_time >= dayLength/4 * 3:
@@ -340,7 +353,11 @@ while True:
             if event.key == pygame.K_F5:
                 cropCheat = not cropCheat
             if event.key == pygame.K_e:
-                interacting = objList[bob.collidelist(objList)]
+                interacting = None
+                for i in objList:
+                    if bob.colliderect(i.rect) and i.get_interactable() == True:
+                        interacting = i
+                        break
                 if type(interacting) == Crop:
                     interacting.interact()
             if event.key == pygame.K_x:
@@ -349,6 +366,16 @@ while True:
                 inventory = not inventory
             if event.key == pygame.K_o:
                 shop = not shop
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if pygame.mouse.get_pressed()[0]:
+                if invBuyRect.collidepoint(mousePos) and inventory == True:
+                    events.append('invBuy')
+                if invSellRect.collidepoint(mousePos) and inventory == True:
+                    events.append('invSell')
+                if invItemUpRect.collidepoint(mousePos) and inventory == True:
+                    events.append('invItemUp')
+                if invItemDownRect.collidepoint(mousePos) and inventory == True:
+                    events.append('invItemDown')
 
 
     if quadbool <= 0:
@@ -359,21 +386,12 @@ while True:
     bobc.xy = (0.0, 0.0)
     bob_effectspeed = bob_basespeed
 
-    mouse = pygame.mouse.get_pressed()
-
-    keys = pygame.key.get_pressed()
-    left = keys[pygame.K_a] or keys[pygame.K_LEFT]
-    right = keys[pygame.K_d] or keys[pygame.K_RIGHT]
-    up = keys[pygame.K_w] or keys[pygame.K_UP]
-    down = keys[pygame.K_s] or keys[pygame.K_DOWN]
-    
-    movement = pygame.math.Vector2(right - left, down - up)
     if keys[pygame.K_LSHIFT] == 1:
         bob_effectspeed *= 5
     bobc.xy = bob.x + bob_effectspeed * movement.x, bob.y + bob_effectspeed * movement.y
 
     if math.dist((bobp), (bobc)) > bob_effectspeed:
-        bobc.xy = tran(bob.x, bob.y, bob_effectspeed / math.sqrt(2) * movement.x , bob_effectspeed / math.sqrt(2) * movement.y)
+        bobc.xy = (bob.x + (bob_effectspeed / math.sqrt(2) * movement.x), bob.y + (bob_effectspeed / math.sqrt(2) * movement.y))
     
     # Player center right of horizontal center, offset.x is min: take distance past center, swap it to offset.x
     if bobc.x > sw / 2 - bob.width / 2 and (offset.x == 0.0 and offset.x != gx - sw):
@@ -414,13 +432,13 @@ while True:
         offset.y = bobc.y - bob.y + offset.y
 
     if bob.x < 0:
-        bob.x += -bob.x
+        bob.x = 0
         movement.x = movement.x * -1
     if bob.x + bob.width > sw:
         bob.x += sw - bob.x - bob.width
         movement.x = movement.x * -1
     if bob.y < 0:
-        bob.y += -bob.y
+        bob.y = 0
         movement.y = movement.y * -1
     if bob.y + bob.height > sh:
         bob.y += sh - bob.y - bob.height
@@ -461,16 +479,22 @@ while True:
 
     if inventory == True:
         window.fill((25,25,25), invBackground)
+        window.fill((100,90,150), invProdTab)
+        window.fill((100,90,150), invSeedTab)
         produceText = yay.render("Produce", True, "white")
-        window.fill((120,120,120), invProdTab)
         window.blit(produceText, invProdTab)
         seedText = yay.render("Seeds", True, "white")
-        window.fill((120,120,120), invSeedTab)
         window.blit(seedText, invSeedTab)
         itemText = yay.render(eval(invCat)[itemIds[invItemSelected]][0], True, 'white')
         window.blit(itemText, invItemRect)
         itemCount = yay.render(str(eval(invCat)[itemIds[invItemSelected]][1]), True, 'white')
         window.blit(itemCount, invItemPos)
+        if 'invItemUp' in events:
+            events.remove('invItemUp')
+            invItemSelected = invItemSelected - 1
+        if 'invItemDown' in events:
+            events.remove('invItemDown')
+            invItemSelected = invItemSelected + 1
 
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
     if debugMode == True:
