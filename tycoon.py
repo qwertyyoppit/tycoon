@@ -22,7 +22,7 @@ class Crop(Structure):
         self.growthProgress = 0.0
         self.growthStage = 0
         self.harvestable = False
-        self.planted = True
+        self.planted = False
         self.cropYields = cropYields
     
     def update(self, dt):
@@ -114,7 +114,10 @@ tilew = gx / 50
 offset = pygame.Vector2(gx / 2 - sw / 2, gy / 2 - sh / 2)
 offsetp = pygame.Vector2(0, 0)
 
-yay = pygame.font.SysFont('calibri', 20, bold=True)
+SmallThin = pygame.font.SysFont('helvetica', 20, bold=False)
+SmallThick = pygame.font.SysFont('helvetica', 20, bold=True)
+LargeThin = pygame.font.SysFont('helvetica', 40, bold=False)
+LargeThick = pygame.font.SysFont('helvetica', 40, bold=True)
 
 def load_sprites(directory, *args):
     sprites = []
@@ -269,7 +272,7 @@ bobp = pygame.math.Vector2(0.0, 0.0)
 bobc = pygame.math.Vector2(0.0, 0.0)
 movement = pygame.math.Vector2(1, 1)
 
-money = 100
+money = 0
 
 itemIds = ['carrot', 'corn', 'potato', 'tomato', 'watermelon', 'wheat']
 
@@ -283,12 +286,12 @@ produce = {
 }
 
 seeds = {
-    'carrot': ['carrot', 10],
-    'corn': ['corn', 10],
-    'potato': ['potato', 10],
-    'tomato': ['tomato', 10],
-    'watermelon': ['watermelon', 10],
-    'wheat': ['wheat', 10]
+    'carrot': ['carrot', 0],
+    'corn': ['corn', 0],
+    'potato': ['potato', 0],
+    'tomato': ['tomato', 0],
+    'watermelon': ['watermelon', 0],
+    'wheat': ['wheat', 3]
 }
 
 buyValue = {
@@ -317,20 +320,22 @@ shop = False
 invCat = 'produce'
 invItemSelected = 0
 
-invBackground = pygame.Rect(sw / 2 - 350 / 2, sh / 2 - 500 / 2, 350, 500)
+invBackground = pygame.Rect(sw / 2 - 500 / 2, sh / 2 - 400 / 2, 500, 400)
 invItemPos = pygame.Vector2(invBackground.x + 50 * 3, invBackground.y + 50 * 3)
 invItemRect = pygame.Rect(invBackground.x + 75, invItemPos.y, 100, 50)
 invItemUpRect = uiButton(pygame.Rect(invBackground.x + 30, invItemPos.y - 40, 200, 40), (117, 117, 117), (158, 158, 158))
 invItemDownRect = uiButton(pygame.Rect(invBackground.x + 30, invItemPos.y + invItemRect.height, 200, 40), (117, 117, 117), (158, 158, 158))
-invProdTab = uiButton(pygame.Rect(invBackground.x + 50 * 1, invBackground.y + 25, 75, 30), (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
-invSeedTab = uiButton(pygame.Rect(invBackground.x + 50 * 3, invBackground.y + 25, 75, 30), (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
-invBuyRect = uiButton(pygame.Rect(invBackground.x + 50 * 5, invItemPos.y, 30, 30), (211, 47, 47), (237, 49, 49))
-invSellRect = uiButton(pygame.Rect(invBackground.x + 50 * 6, invItemPos.y, 30, 30), (67, 160, 71), (76, 175, 80))
+invProdTab = uiButton(pygame.Rect(invBackground.x + 25, invBackground.y + 25, 100, 30), (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
+invProdTab.set_active(True)
+invSeedTab = uiButton(pygame.Rect(invBackground.x + 50 * 3, invBackground.y + 25, 100, 30), (35, 35, 35), (177, 171, 207), (100,90,150), (127, 118, 173))
+invMoneyRect = pygame.Rect(invBackground.x + invBackground.width - 100, invBackground.y + 25, 75, 30)
+invBuyRect = uiButton(pygame.Rect(invBackground.x + 50 * 6, invItemPos.y + invItemRect.height / 2 - 25, 50, 50), (211, 47, 47), (237, 49, 49))
+invSellRect = uiButton(pygame.Rect(invBackground.x + 50 * 7.5, invItemPos.y + invItemRect.height / 2 - 25, 50, 50), (67, 160, 71), (76, 175, 80))
 
 mouseHandled = True
 events = []
 
-controlsText = yay.render("WASD/Arrow keys to move, E to plant/harvest, TAB for inventory", True, "white", "black")
+controlsText = SmallThick.render("WASD or Arrows: Move | E: Plant/harvest | TAB: inventory", True, "white", "black")
 
 # debug tools
 condRes = 'Else'
@@ -406,7 +411,7 @@ while True:
                 if invProdTab.rect.collidepoint(mousePos) and inventory == True:
                     events.append('invCatProd')
                 if invSeedTab.rect.collidepoint(mousePos) and inventory == True:
-                    events.append('invCatSeed')
+                    events.append('invCatSeeds')
 
 
     if quadbool <= 0:
@@ -506,7 +511,7 @@ while True:
 
     time_hour = math.floor(math.floor(game_time) / 60)
     time_minute = math.floor(game_time) - 60 * time_hour
-    time_text = yay.render(str(time_hour) + ':' + ('0' + str(time_minute) if len(str(time_minute)) == 1 else str(time_minute)) + ' (' + time_of_day + ')', True, 'white')
+    time_text = SmallThin.render(str(time_hour) + ':' + ('0' + str(time_minute) if len(str(time_minute)) == 1 else str(time_minute)) + ' (' + time_of_day + ')', True, 'white', (25, 25, 25, 25))
 
     if inventory == True:
         window.fill((25,25,25), invBackground)
@@ -514,37 +519,67 @@ while True:
         window.fill(invSeedTab.get_color(), invSeedTab)
         window.fill(invItemUpRect.get_color(), invItemUpRect)
         window.fill(invItemDownRect.get_color(), invItemDownRect)
-        produceText = yay.render("Produce", True, "white")
+        moneyText = SmallThick.render("$" + str(money), True, 'white', (30,30,30))
+        window.blit(moneyText, (invMoneyRect.x, invMoneyRect.y + invMoneyRect.height / 2 - moneyText.get_height() / 2))
+        produceText = SmallThick.render("Produce", True, "white")
         window.blit(produceText, (invProdTab.rect.x + invProdTab.rect.width / 2 - produceText.get_width() / 2, invProdTab.rect.y + invProdTab.rect.height / 2 - produceText.get_height() / 2))
-        seedText = yay.render("Seeds", True, "white")
+        seedText = SmallThick.render("Seeds", True, "white")
         window.blit(seedText, (invSeedTab.rect.x + invSeedTab.rect.width / 2 - seedText.get_width() / 2, invSeedTab.rect.y + invSeedTab.rect.height / 2 - seedText.get_height() / 2))
-        itemText = pygame.transform.scale_by(yay.render(eval(invCat)[itemIds[invItemSelected]][0], True, 'white'), 0.2)
+        itemText = LargeThin.render(eval(invCat)[itemIds[invItemSelected]][0], True, 'white')
         window.blit(itemText, (invItemRect.x + invItemRect.width / 2 - itemText.get_width() / 2, invItemPos.y + invItemRect.height / 2 - itemText.get_height() / 2))
-        itemCount = yay.render(str(eval(invCat)[itemIds[invItemSelected]][1]), True, 'white')
-        window.blit(itemCount, (invItemPos.x - itemCount.get_width() / 2, invItemPos.y))
+        itemCount = LargeThick.render(str(eval(invCat)[itemIds[invItemSelected]][1]), True, 'white')
+        window.blit(itemCount, (invItemPos.x + invItemRect.width, invItemPos.y + invItemRect.height / 2 - itemCount.get_height() / 2))
         
-
         if 'invItemUp' in events:
             events.remove('invItemUp')
             invItemSelected = invItemSelected - 1 if invItemSelected - 1 >= 0 else len(itemIds) - 1
-        elif 'invItemDown' in events:
+        if 'invItemDown' in events:
             events.remove('invItemDown')
             invItemSelected = invItemSelected + 1 if invItemSelected + 1 < len(itemIds) else 0
+        if 'invCatProd' in events:
+            events.remove('invCatProd')
+            invCat = 'produce'
+            invProdTab.set_active(True)
+            invSeedTab.set_active(False)
+        if 'invCatSeeds' in events:
+            events.remove('invCatSeeds')
+            invCat = 'seeds'
+            invSeedTab.set_active(True)
+            invProdTab.set_active(False)
+    
+        if shop == True:
+            window.fill(invBuyRect.get_color(), invBuyRect)
+            window.fill(invSellRect.get_color(), invSellRect)
+            priceText = SmallThin.render(str(buyValue[itemIds[invItemSelected]]), True, 'white')
+            window.blit(priceText, (invBuyRect.rect.x + invBuyRect.rect.width / 2 - priceText.get_width() / 2, invBuyRect.rect.y + invBuyRect.rect.height / 2 - priceText.get_height() / 2))
+            sellText = SmallThin.render(str(sellValue[itemIds[invItemSelected]]), True, 'white')
+            window.blit(sellText, (invSellRect.rect.x + invSellRect.rect.width / 2 - sellText.get_width() / 2, invSellRect.rect.y + invSellRect.rect.height / 2 - sellText.get_height() / 2))
+            
+            if 'invBuy' in events:
+                events.remove('invBuy')
+                if money - buyValue[itemIds[invItemSelected]] >= 0:
+                    money -= buyValue[itemIds[invItemSelected]]
+                    eval(invCat)[itemIds[invItemSelected]][1] += 1
+            if 'invSell' in events:
+                events.remove('invSell')
+                if produce[itemIds[invItemSelected]][1] > 0:
+                    money += sellValue[itemIds[invItemSelected]]
+                    produce[itemIds[invItemSelected]][1] -= 1
 
     window.blit(time_text, (window.get_width() - time_text.get_width(), 0))
     if debugMode == True:
         debugList = [offset.x, offset.y, pygame.Vector2((sw, sh)), pygame.Vector2((gx, gy)), pygame.Vector2((bob.x, bob.y)), bobc.xy, condRes]
         debugLineOffset = 0
-        debugOffsets = yay.render("{}, {}".format(debugList[0], debugList[1]), True, 'white')
+        debugOffsets = SmallThin.render("{}, {}".format(debugList[0], debugList[1]), True, 'white')
         window.blit(debugOffsets, (0, debugLineOffset))
         debugLineOffset += debugOffsets.get_height()
-        debugLengths = yay.render("{}, {}".format(debugList[2], debugList[3]), True, 'white')
+        debugLengths = SmallThin.render("{}, {}".format(debugList[2], debugList[3]), True, 'white')
         window.blit(debugLengths, (0, debugLineOffset))
         debugLineOffset += debugLengths.get_height()
-        debugCoords = yay.render("{}, {}".format(debugList[4], debugList[5]), True, 'white')
+        debugCoords = SmallThin.render("{}, {}".format(debugList[4], debugList[5]), True, 'white')
         window.blit(debugCoords, (0, debugLineOffset))
         debugLineOffset += debugCoords.get_height()
-        debugCondRes = yay.render(str(debugList[6]), True, 'white')
+        debugCondRes = SmallThin.render(str(debugList[6]), True, 'white')
         window.blit(debugCondRes, (0, debugLineOffset))
         debugLineOffset += debugCondRes.get_height()
     
